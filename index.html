@@ -454,6 +454,54 @@
   .captura-btn span:first-child{ font-size: 12px; }
   .captura-btn:disabled{ opacity: 0.6; cursor: default; }
   .captura-btn:active{ transform: translateY(1px); }
+
+  .preview-overlay{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    z-index: 100;
+  }
+  .preview-overlay.open{ display: flex; }
+  .preview-box{
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    max-width: 92vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    overflow: auto;
+  }
+  .preview-box img{
+    max-width: 100%;
+    max-height: 62vh;
+    border-radius: 8px;
+    display: block;
+  }
+  .preview-hint{
+    font-size: 12px;
+    color: #6B7280;
+    text-align: center;
+    margin: 0;
+    max-width: 300px;
+  }
+  .preview-close-btn{
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 999px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -532,7 +580,7 @@
       </div>
 
       <button id="capturarCuotasBtn" class="captura-btn" type="button">
-        <span>📸</span><span id="capturarCuotasTexto">Guardar captura</span>
+        <span>📸</span><span id="capturarCuotasTexto">Compartir captura</span>
       </button>
 
       <div class="dates-block">
@@ -545,7 +593,7 @@
         </div>
 
         <button id="capturarFechasBtn" class="captura-btn" type="button">
-          <span>📸</span><span id="capturarFechasTexto">Guardar captura</span>
+          <span>📸</span><span id="capturarFechasTexto">Compartir captura</span>
         </button>
 
         <div class="resumen-card">
@@ -597,11 +645,19 @@
         </div>
 
         <button id="capturarResumenBtn" class="captura-btn" type="button">
-          <span>📸</span><span id="capturarResumenTexto">Guardar captura</span>
+          <span>📸</span><span id="capturarResumenTexto">Compartir captura</span>
         </button>
       </div>
     </div>
 
+  </div>
+
+  <div id="previewOverlay" class="preview-overlay">
+    <div class="preview-box">
+      <img id="previewImg" src="" alt="Captura de PrestaYa">
+      <p class="preview-hint">Mantén presionada la imagen para guardarla o compartirla desde tu galería.</p>
+      <button id="previewCloseBtn" class="preview-close-btn" type="button">Cerrar</button>
+    </div>
   </div>
 
   <footer>PrestaYa · Los valores son referenciales y pueden variar</footer>
@@ -892,16 +948,24 @@
     return `${y}${m}${d}-${h}${min}`;
   }
 
-  function descargarBlob(blob, nombre){
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombre;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  const previewOverlay = document.getElementById('previewOverlay');
+  const previewImg = document.getElementById('previewImg');
+  const previewCloseBtn = document.getElementById('previewCloseBtn');
+  let previewUrlActual = null;
+
+  function mostrarVistaPrevia(blob){
+    if(previewUrlActual) URL.revokeObjectURL(previewUrlActual);
+    previewUrlActual = URL.createObjectURL(blob);
+    previewImg.src = previewUrlActual;
+    previewOverlay.classList.add('open');
   }
+
+  previewCloseBtn.addEventListener('click', () => {
+    previewOverlay.classList.remove('open');
+  });
+  previewOverlay.addEventListener('click', (e) => {
+    if(e.target === previewOverlay) previewOverlay.classList.remove('open');
+  });
 
   // Dibuja el encabezado común (logo, modalidad, monto) y devuelve la altura ocupada
   function dibujarEncabezadoCaptura(ctx, W, PAD, subtitulo){
@@ -1249,8 +1313,19 @@
       const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
       const diferenciador = numeroAleatorio1a100();
       const nombre = `prestaya-${prefijo}-${valorCuota}-${timestampArchivo()}-${diferenciador}.png`;
+      const archivo = new File([blob], nombre, { type: 'image/png' });
 
-      descargarBlob(blob, nombre);
+      if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+        try{
+          await navigator.share({ files: [archivo], title: 'PrestaYa' });
+        }catch(err){
+          if(err && err.name !== 'AbortError'){
+            mostrarVistaPrevia(blob);
+          }
+        }
+      } else {
+        mostrarVistaPrevia(blob);
+      }
     }catch(err){
       alert('No se pudo generar la captura. Intenta de nuevo.');
     }finally{
