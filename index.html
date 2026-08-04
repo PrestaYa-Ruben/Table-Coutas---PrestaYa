@@ -965,11 +965,11 @@
   });
 
   // Dibuja el encabezado común (logo, modalidad, monto) y devuelve la altura ocupada
-  function dibujarEncabezadoCaptura(ctx, W, PAD, subtitulo){
+  // Logo y subtítulo: van FUERA del marco con borde, arriba de la tarjeta
+  function dibujarLogo(ctx, W, PAD, subtitulo){
     const AZUL = '#002D62';
     const VERDE = '#008F53';
     const GRIS_TXT = '#6B7280';
-    const TEXTO = '#1B1B1B';
     const FUENTE = 'Arial, Helvetica, sans-serif';
     const cx = W / 2;
     let y = PAD;
@@ -991,16 +991,28 @@
     ctx.fillStyle = GRIS_TXT;
     ctx.fillText(subtitulo, cx, y);
 
-    y += 18;
+    y += 20;
+    return y; // punto donde debe empezar el marco con borde
+  }
+
+  // Banda de modalidad + monto: van DENTRO del marco con borde (se dibuja después de hacer el clip)
+  const ALTURA_BANDA_MONTO = 126;
+  function dibujarBandaYMonto(ctx, W, PAD, y){
+    const AZUL = '#002D62';
+    const GRIS_TXT = '#6B7280';
+    const TEXTO = '#1B1B1B';
+    const FUENTE = 'Arial, Helvetica, sans-serif';
+    const cx = W / 2;
+    const tableW = W - PAD * 2;
+
     const freqTexto = freqSelect.options[freqSelect.selectedIndex].text;
-    dibujarRectRedondeado(ctx, PAD, y, W - PAD * 2, 54, 12);
     ctx.fillStyle = AZUL;
-    ctx.fill();
+    ctx.fillRect(PAD, y, tableW, 54);
     ctx.fillStyle = '#ffffff';
     ctx.font = `800 22px ${FUENTE}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(freqTexto, cx, y + 29);
+    ctx.fillText(freqTexto, cx, y + 27);
 
     y += 54 + 20;
 
@@ -1015,7 +1027,7 @@
     ctx.fillText(formatoNumero(monto), cx, y);
 
     y += 20;
-    return y;
+    return y; // punto donde debe empezar el contenido siguiente dentro del marco
   }
 
   // Toma un canvas ya dibujado y lo devuelve con esquinas muy redondeadas (estilo iOS)
@@ -1066,7 +1078,8 @@
     const rowH = 44;
     const headerH = 44;
     const altoTabla = headerH + seleccionada * rowH;
-    const altoContenido = PAD + 176 + altoTabla + 18 + 14 + 16;
+    const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
+    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
 
     return finalizarCaptura((ctx, W) => {
       const VERDE = '#008F53';
@@ -1075,21 +1088,25 @@
       const FUENTE = 'Arial, Helvetica, sans-serif';
       const tableW = W - PAD * 2;
 
-      let y = dibujarEncabezadoCaptura(ctx, W, PAD, 'SIMULACIÓN DE CUOTAS');
+      let y = dibujarLogo(ctx, W, PAD, 'SIMULACIÓN DE CUOTAS');
+      const frameY = y;
 
       ctx.save();
-      dibujarRectRedondeado(ctx, PAD, y, tableW, altoTabla, 14);
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
       ctx.clip();
+
+      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
+
       ctx.fillStyle = VERDE_OSC;
-      ctx.fillRect(PAD, y, tableW, headerH);
+      ctx.fillRect(PAD, yy, tableW, headerH);
       ctx.fillStyle = '#ffffff';
       ctx.font = `800 13px ${FUENTE}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('DETALLE DE CUOTAS', PAD + tableW / 2, y + headerH / 2);
+      ctx.fillText('DETALLE DE CUOTAS', PAD + tableW / 2, yy + headerH / 2);
 
       for(let fila = 1; fila <= seleccionada; fila++){
-        const filaY = y + headerH + (fila - 1) * rowH;
+        const filaY = yy + headerH + (fila - 1) * rowH;
         const centerY = filaY + rowH / 2;
         ctx.fillStyle = fila % 2 === 1 ? '#ffffff' : FILA_ALT;
         ctx.fillRect(PAD, filaY, tableW, rowH);
@@ -1127,17 +1144,18 @@
         ctx.fillText(valTxt, cursorX, centerY);
       }
       ctx.restore();
-      dibujarRectRedondeado(ctx, PAD, y, tableW, altoTabla, 14);
+
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
       ctx.lineWidth = 2;
-      ctx.strokeStyle = VERDE;
+      ctx.strokeStyle = VERDE_OSC;
       ctx.stroke();
 
-      y += altoTabla + 18;
+      const yFooter = frameY + alturaMarco + 18;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
       ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, y);
+      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
     }, altoContenido);
   }
 
@@ -1149,7 +1167,8 @@
     const rowH = 44;
     const headerH = 44;
     const altoTabla = headerH + seleccionada * rowH;
-    const altoContenido = PAD + 176 + 12 + altoTabla + 18 + 14 + 16;
+    const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
+    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
 
     return finalizarCaptura((ctx, W) => {
       const AZUL = '#002D62';
@@ -1158,27 +1177,24 @@
       const FUENTE = 'Arial, Helvetica, sans-serif';
       const tableW = W - PAD * 2;
 
-      let y = dibujarEncabezadoCaptura(ctx, W, PAD, 'FECHAS DE PAGO');
-
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `800 14px ${FUENTE}`;
-      ctx.fillStyle = AZUL;
-      ctx.fillText('FECHAS DE PAGO', PAD, y);
-      y += 12;
+      let y = dibujarLogo(ctx, W, PAD, 'FECHAS DE PAGO');
+      const frameY = y;
 
       ctx.save();
-      dibujarRectRedondeado(ctx, PAD, y, tableW, altoTabla, 14);
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
       ctx.clip();
+
+      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
+
       ctx.fillStyle = AZUL;
-      ctx.fillRect(PAD, y, tableW, headerH);
+      ctx.fillRect(PAD, yy, tableW, headerH);
       ctx.fillStyle = '#ffffff';
       ctx.font = `800 13px ${FUENTE}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('N° CUOTA', PAD + tableW * (1 / 6), y + headerH / 2);
-      ctx.fillText('VALOR CUOTA', PAD + tableW * (3 / 6), y + headerH / 2);
-      ctx.fillText('FECHA DE PAGO', PAD + tableW * (5 / 6), y + headerH / 2);
+      ctx.fillText('N° CUOTA', PAD + tableW * (1 / 6), yy + headerH / 2);
+      ctx.fillText('VALOR CUOTA', PAD + tableW * (3 / 6), yy + headerH / 2);
+      ctx.fillText('FECHA DE PAGO', PAD + tableW * (5 / 6), yy + headerH / 2);
 
       const valorCuotaFinal = calcularCuota(monto, seleccionada, frecuencia);
       const intervalo = INTERVALO_DIAS[frecuencia];
@@ -1186,7 +1202,7 @@
 
       for(let i = 1; i <= seleccionada; i++){
         fechaCursor = new Date(fechaCursor.getTime() + intervalo * 24 * 60 * 60 * 1000);
-        const filaY = y + headerH + (i - 1) * rowH;
+        const filaY = yy + headerH + (i - 1) * rowH;
         ctx.fillStyle = i % 2 === 1 ? '#ffffff' : FILA_ALT;
         ctx.fillRect(PAD, filaY, tableW, rowH);
 
@@ -1204,27 +1220,31 @@
         ctx.fillText(formatearFecha(fechaCursor), PAD + tableW * (5 / 6), filaY + rowH / 2);
       }
       ctx.restore();
-      dibujarRectRedondeado(ctx, PAD, y, tableW, altoTabla, 14);
+
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
       ctx.strokeStyle = AZUL;
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      y += altoTabla + 18;
+      const yFooter = frameY + alturaMarco + 18;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
       ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, y);
+      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
     }, altoContenido);
   }
 
   async function generarCapturaResumen(){
     const PAD = 28;
-    const filaAltura = 48;
+    const filaAltura = 46;
     const gap = 8;
     const filas = 6;
+    const headerResumen = 40;
+    const gapHeaderLista = 14;
     const altoGrid = filas * filaAltura + (filas - 1) * gap;
-    const altoContenido = PAD + 176 + 12 + altoGrid + 18 + 14 + 16;
+    const alturaMarco = ALTURA_BANDA_MONTO + headerResumen + gapHeaderLista + altoGrid;
+    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
     const anchoResumen = 360;
 
     return finalizarCaptura((ctx, W) => {
@@ -1239,15 +1259,25 @@
       const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
       const total = valorCuota * seleccionada;
       const intereses = total - monto;
+      const tableW = W - PAD * 2;
 
-      let y = dibujarEncabezadoCaptura(ctx, W, PAD, 'RESUMEN DEL CRÉDITO');
+      let y = dibujarLogo(ctx, W, PAD, 'RESUMEN DEL CRÉDITO');
+      const frameY = y;
 
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `800 14px ${FUENTE}`;
+      ctx.save();
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
+      ctx.clip();
+
+      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
+
       ctx.fillStyle = AZUL;
-      ctx.fillText('RESUMEN DEL CRÉDITO', PAD, y);
-      y += 12;
+      ctx.fillRect(PAD, yy, tableW, headerResumen);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `800 13px ${FUENTE}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('RESUMEN DEL CRÉDITO', PAD + tableW / 2, yy + headerResumen / 2);
+      yy += headerResumen + gapHeaderLista;
 
       const items = [
         ['💰', 'Monto', '$' + formatoNumero(monto)],
@@ -1258,10 +1288,10 @@
         ['📈', 'Intereses', '$' + formatoNumero(intereses)]
       ];
 
-      const anchoFila = W - PAD * 2;
+      const anchoFila = tableW;
 
       items.forEach(([icono, label, valor], idx) => {
-        const filaY = y + idx * (filaAltura + gap);
+        const filaY = yy + idx * (filaAltura + gap);
 
         dibujarRectRedondeado(ctx, PAD, filaY, anchoFila, filaAltura, 10);
         ctx.fillStyle = FILA_ALT;
@@ -1269,25 +1299,32 @@
 
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.font = '19px Arial, sans-serif';
+        ctx.font = '18px Arial, sans-serif';
         ctx.fillStyle = '#000000';
         ctx.fillText(icono, PAD + 14, filaY + filaAltura / 2);
 
         ctx.font = `700 10px ${FUENTE}`;
         ctx.fillStyle = GRIS_TXT;
-        ctx.fillText(label.toUpperCase(), PAD + 46, filaY + filaAltura / 2 - 9);
+        ctx.fillText(label.toUpperCase(), PAD + 46, filaY + filaAltura / 2 - 8);
 
-        ctx.font = `800 15px ${FUENTE}`;
+        ctx.font = `800 14px ${FUENTE}`;
         ctx.fillStyle = TEXTO;
-        ctx.fillText(valor, PAD + 46, filaY + filaAltura / 2 + 10);
+        ctx.fillText(valor, PAD + 46, filaY + filaAltura / 2 + 9);
       });
 
-      y += altoGrid + 18;
+      ctx.restore();
+
+      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
+      ctx.strokeStyle = AZUL;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const yFooter = frameY + alturaMarco + 18;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
       ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, y);
+      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
     }, altoContenido, anchoResumen);
   }
 
