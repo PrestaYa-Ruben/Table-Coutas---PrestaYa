@@ -1072,7 +1072,6 @@
       const VERDE = '#008F53';
       const VERDE_OSC = '#05713F';
       const FILA_ALT = '#EAF2FA';
-      const TEXTO = '#1B1B1B';
       const FUENTE = 'Arial, Helvetica, sans-serif';
       const tableW = W - PAD * 2;
 
@@ -1085,33 +1084,47 @@
       ctx.fillRect(PAD, y, tableW, headerH);
       ctx.fillStyle = '#ffffff';
       ctx.font = `800 13px ${FUENTE}`;
-      ctx.textAlign = 'left';
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('N° DE CUOTAS', PAD + 18, y + headerH / 2);
-      ctx.textAlign = 'right';
-      ctx.fillText('VALOR POR CUOTA', PAD + tableW - 18, y + headerH / 2);
+      ctx.fillText('DETALLE DE CUOTAS', PAD + tableW / 2, y + headerH / 2);
 
       for(let fila = 1; fila <= seleccionada; fila++){
         const filaY = y + headerH + (fila - 1) * rowH;
+        const centerY = filaY + rowH / 2;
         ctx.fillStyle = fila % 2 === 1 ? '#ffffff' : FILA_ALT;
         ctx.fillRect(PAD, filaY, tableW, rowH);
 
         const valor = calcularCuota(monto, fila, frecuencia);
         const etiqueta = fila === 1 ? 'Cuota de' : 'Cuotas de';
+        const numTxt = String(fila);
+        const valTxt = '$' + formatoNumero(valor);
+        const gapChico = 6;
 
-        ctx.font = `700 14px ${FUENTE}`;
-        ctx.fillStyle = TEXTO;
-        ctx.textAlign = 'left';
-        ctx.fillText(String(fila), PAD + 18, filaY + rowH / 2);
-
+        ctx.font = `800 15px ${FUENTE}`;
+        const wNum = ctx.measureText(numTxt).width;
+        const wVal = ctx.measureText(valTxt).width;
         ctx.font = `500 14px ${FUENTE}`;
-        ctx.fillStyle = '#444444';
-        ctx.fillText(etiqueta, PAD + 50, filaY + rowH / 2);
+        const wLabel = ctx.measureText(etiqueta).width;
+
+        const anchoFrase = wNum + gapChico + wLabel + gapChico + wVal;
+        let cursorX = PAD + (tableW - anchoFrase) / 2;
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
 
         ctx.font = `800 15px ${FUENTE}`;
         ctx.fillStyle = VERDE;
-        ctx.textAlign = 'right';
-        ctx.fillText('$' + formatoNumero(valor), PAD + tableW - 18, filaY + rowH / 2);
+        ctx.fillText(numTxt, cursorX, centerY);
+        cursorX += wNum + gapChico;
+
+        ctx.font = `500 14px ${FUENTE}`;
+        ctx.fillStyle = '#444444';
+        ctx.fillText(etiqueta, cursorX, centerY);
+        cursorX += wLabel + gapChico;
+
+        ctx.font = `800 15px ${FUENTE}`;
+        ctx.fillStyle = VERDE;
+        ctx.fillText(valTxt, cursorX, centerY);
       }
       ctx.restore();
       dibujarRectRedondeado(ctx, PAD, y, tableW, altoTabla, 14);
