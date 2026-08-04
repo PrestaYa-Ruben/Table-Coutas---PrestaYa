@@ -1020,12 +1020,12 @@
 
   // Toma un canvas ya dibujado y lo devuelve con esquinas muy redondeadas (estilo iOS)
   // y con un pequeño margen blanco en los 4 lados para que no se vea recortado
-  async function finalizarCaptura(dibujar, altoContenido){
+  async function finalizarCaptura(dibujar, altoContenido, anchoContenido){
     if(document.fonts && document.fonts.ready){
       try{ await document.fonts.ready; }catch(e){ /* seguimos con la fuente disponible */ }
     }
 
-    const W = 760;
+    const W = anchoContenido || 630;
     const MARGEN = 14;   // espacio pequeño en los 4 lados
     const RADIO = 30;    // redondeo generoso estilo iOS
     const escala = 3;    // buena calidad / alta resolución
@@ -1206,12 +1206,13 @@
   }
 
   async function generarCapturaResumen(){
-    const PAD = 32;
-    const filaAltura = 54;
-    const gap = 10;
-    const filas = 3;
+    const PAD = 28;
+    const filaAltura = 48;
+    const gap = 8;
+    const filas = 6;
     const altoGrid = filas * filaAltura + (filas - 1) * gap;
     const altoContenido = PAD + 176 + 12 + altoGrid + 18 + 14 + 16;
+    const anchoResumen = 500;
 
     return finalizarCaptura((ctx, W) => {
       const AZUL = '#002D62';
@@ -1244,32 +1245,28 @@
         ['📈', 'Intereses', '$' + formatoNumero(intereses)]
       ];
 
-      const tableW = W - PAD * 2;
-      const colW = (tableW - gap) / 2;
+      const anchoFila = W - PAD * 2;
 
       items.forEach(([icono, label, valor], idx) => {
-        const col = idx % 2;
-        const fila = Math.floor(idx / 2);
-        const x = PAD + col * (colW + gap);
-        const filaY = y + fila * (filaAltura + gap);
+        const filaY = y + idx * (filaAltura + gap);
 
-        dibujarRectRedondeado(ctx, x, filaY, colW, filaAltura, 10);
+        dibujarRectRedondeado(ctx, PAD, filaY, anchoFila, filaAltura, 10);
         ctx.fillStyle = FILA_ALT;
         ctx.fill();
 
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.font = '18px Arial, sans-serif';
+        ctx.font = '19px Arial, sans-serif';
         ctx.fillStyle = '#000000';
-        ctx.fillText(icono, x + 11, filaY + filaAltura / 2);
+        ctx.fillText(icono, PAD + 14, filaY + filaAltura / 2);
 
-        ctx.font = `700 9px ${FUENTE}`;
+        ctx.font = `700 10px ${FUENTE}`;
         ctx.fillStyle = GRIS_TXT;
-        ctx.fillText(label.toUpperCase(), x + 40, filaY + filaAltura / 2 - 8);
+        ctx.fillText(label.toUpperCase(), PAD + 46, filaY + filaAltura / 2 - 9);
 
-        ctx.font = `800 13px ${FUENTE}`;
+        ctx.font = `800 15px ${FUENTE}`;
         ctx.fillStyle = TEXTO;
-        ctx.fillText(valor, x + 40, filaY + filaAltura / 2 + 9);
+        ctx.fillText(valor, PAD + 46, filaY + filaAltura / 2 + 10);
       });
 
       y += altoGrid + 18;
@@ -1278,7 +1275,7 @@
       ctx.font = `500 10px ${FUENTE}`;
       ctx.fillStyle = '#9AA0A6';
       ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, y);
-    }, altoContenido);
+    }, altoContenido, anchoResumen);
   }
 
   async function ejecutarCaptura(tipo, btn, textoEl){
