@@ -974,29 +974,29 @@
     const cx = W / 2;
     let y = PAD;
 
-    ctx.font = `800 22px ${FUENTE}`;
+    ctx.font = `800 21px ${FUENTE}`;
     const wPresta = ctx.measureText('Presta').width;
     const wYa = ctx.measureText('Ya').width;
     const lx = cx - (wPresta + wYa) / 2;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = AZUL;
-    ctx.fillText('Presta', lx, y + 16);
+    ctx.fillText('Presta', lx, y + 15);
     ctx.fillStyle = VERDE;
-    ctx.fillText('Ya', lx + wPresta, y + 16);
+    ctx.fillText('Ya', lx + wPresta, y + 15);
 
-    y += 32;
+    y += 25;
     ctx.textAlign = 'center';
     ctx.font = `700 11px ${FUENTE}`;
     ctx.fillStyle = GRIS_TXT;
     ctx.fillText(subtitulo, cx, y);
 
-    y += 20;
+    y += 12;
     return y; // punto donde debe empezar el marco con borde
   }
 
   // Banda de modalidad + monto: van DENTRO del marco con borde (se dibuja después de hacer el clip)
-  const ALTURA_BANDA_MONTO = 126;
+  const ALTURA_BANDA_MONTO = 99;
   function dibujarBandaYMonto(ctx, W, PAD, y){
     const AZUL = '#002D62';
     const GRIS_TXT = '#6B7280';
@@ -1004,29 +1004,30 @@
     const FUENTE = 'Arial, Helvetica, sans-serif';
     const cx = W / 2;
     const tableW = W - PAD * 2;
+    const altoBanda = 46;
 
     const freqTexto = freqSelect.options[freqSelect.selectedIndex].text;
     ctx.fillStyle = AZUL;
-    ctx.fillRect(PAD, y, tableW, 54);
+    ctx.fillRect(PAD, y, tableW, altoBanda);
     ctx.fillStyle = '#ffffff';
-    ctx.font = `800 22px ${FUENTE}`;
+    ctx.font = `800 21px ${FUENTE}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(freqTexto, cx, y + 27);
+    ctx.fillText(freqTexto, cx, y + altoBanda / 2 + 1);
 
-    y += 54 + 20;
+    y += altoBanda + 12;
 
     const monto = parseMonto(montoInput.value);
     ctx.textBaseline = 'alphabetic';
     ctx.font = `700 11px ${FUENTE}`;
     ctx.fillStyle = GRIS_TXT;
     ctx.fillText('MONTO SOLICITADO', cx, y);
-    y += 32;
-    ctx.font = `800 34px ${FUENTE}`;
+    y += 27;
+    ctx.font = `800 33px ${FUENTE}`;
     ctx.fillStyle = TEXTO;
     ctx.fillText(formatoNumero(monto), cx, y);
 
-    y += 20;
+    y += 14;
     return y; // punto donde debe empezar el contenido siguiente dentro del marco
   }
 
@@ -1038,8 +1039,8 @@
     }
 
     const W = anchoContenido || 480;
-    const MARGEN = 14;   // espacio pequeño en los 4 lados
-    const RADIO = 30;    // redondeo generoso estilo iOS
+    const MARGEN = 10;   // espacio pequeño en los 4 lados
+    const RADIO = 28;    // redondeo generoso estilo iOS
     const escala = 3;    // buena calidad / alta resolución
 
     const anchoTotal = W + MARGEN * 2;
@@ -1074,12 +1075,12 @@
     const monto = parseMonto(montoInput.value);
     const frecuencia = freqSelect.value;
     const seleccionada = parseInt(cuotasSelect.value, 10);
-    const PAD = 32;
-    const rowH = 44;
-    const headerH = 44;
+    const PAD = 26;
+    const rowH = 40;
+    const headerH = 40;
     const altoTabla = headerH + seleccionada * rowH;
     const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
-    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
+    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
 
     return finalizarCaptura((ctx, W) => {
       const VERDE = '#008F53';
@@ -1117,10 +1118,10 @@
         const valTxt = '$' + formatoNumero(valor);
         const gapChico = 6;
 
-        ctx.font = `800 15px ${FUENTE}`;
+        ctx.font = `800 14px ${FUENTE}`;
         const wNum = ctx.measureText(numTxt).width;
         const wVal = ctx.measureText(valTxt).width;
-        ctx.font = `500 14px ${FUENTE}`;
+        ctx.font = `500 13px ${FUENTE}`;
         const wLabel = ctx.measureText(etiqueta).width;
 
         const anchoFrase = wNum + gapChico + wLabel + gapChico + wVal;
@@ -1129,17 +1130,17 @@
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
 
-        ctx.font = `800 15px ${FUENTE}`;
+        ctx.font = `800 14px ${FUENTE}`;
         ctx.fillStyle = VERDE;
         ctx.fillText(numTxt, cursorX, centerY);
         cursorX += wNum + gapChico;
 
-        ctx.font = `500 14px ${FUENTE}`;
+        ctx.font = `500 13px ${FUENTE}`;
         ctx.fillStyle = '#444444';
         ctx.fillText(etiqueta, cursorX, centerY);
         cursorX += wLabel + gapChico;
 
-        ctx.font = `800 15px ${FUENTE}`;
+        ctx.font = `800 14px ${FUENTE}`;
         ctx.fillStyle = VERDE;
         ctx.fillText(valTxt, cursorX, centerY);
       }
@@ -1150,7 +1151,7 @@
       ctx.strokeStyle = VERDE_OSC;
       ctx.stroke();
 
-      const yFooter = frameY + alturaMarco + 18;
+      const yFooter = frameY + alturaMarco + 12;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
@@ -1163,12 +1164,12 @@
     const monto = parseMonto(montoInput.value);
     const frecuencia = freqSelect.value;
     const seleccionada = parseInt(cuotasSelect.value, 10);
-    const PAD = 32;
-    const rowH = 44;
-    const headerH = 44;
+    const PAD = 26;
+    const rowH = 40;
+    const headerH = 40;
     const altoTabla = headerH + seleccionada * rowH;
     const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
-    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
+    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
 
     return finalizarCaptura((ctx, W) => {
       const AZUL = '#002D62';
@@ -1207,15 +1208,15 @@
         ctx.fillRect(PAD, filaY, tableW, rowH);
 
         ctx.textAlign = 'center';
-        ctx.font = `600 14px ${FUENTE}`;
+        ctx.font = `600 13px ${FUENTE}`;
         ctx.fillStyle = TEXTO;
         ctx.fillText(String(i), PAD + tableW * (1 / 6), filaY + rowH / 2);
 
-        ctx.font = `800 14px ${FUENTE}`;
+        ctx.font = `800 13px ${FUENTE}`;
         ctx.fillStyle = AZUL;
         ctx.fillText('$' + formatoNumero(valorCuotaFinal), PAD + tableW * (3 / 6), filaY + rowH / 2);
 
-        ctx.font = `500 13px ${FUENTE}`;
+        ctx.font = `500 12px ${FUENTE}`;
         ctx.fillStyle = '#333333';
         ctx.fillText(formatearFecha(fechaCursor), PAD + tableW * (5 / 6), filaY + rowH / 2);
       }
@@ -1226,7 +1227,7 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      const yFooter = frameY + alturaMarco + 18;
+      const yFooter = frameY + alturaMarco + 12;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
@@ -1236,15 +1237,15 @@
   }
 
   async function generarCapturaResumen(){
-    const PAD = 28;
-    const filaAltura = 46;
-    const gap = 8;
+    const PAD = 22;
+    const filaAltura = 42;
+    const gap = 6;
     const filas = 6;
-    const headerResumen = 40;
-    const gapHeaderLista = 14;
+    const headerResumen = 36;
+    const gapHeaderLista = 10;
     const altoGrid = filas * filaAltura + (filas - 1) * gap;
     const alturaMarco = ALTURA_BANDA_MONTO + headerResumen + gapHeaderLista + altoGrid;
-    const altoContenido = PAD + 52 + alturaMarco + 18 + 14 + 16;
+    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
     const anchoResumen = 360;
 
     return finalizarCaptura((ctx, W) => {
@@ -1273,7 +1274,7 @@
       ctx.fillStyle = AZUL;
       ctx.fillRect(PAD, yy, tableW, headerResumen);
       ctx.fillStyle = '#ffffff';
-      ctx.font = `800 13px ${FUENTE}`;
+      ctx.font = `800 12px ${FUENTE}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('RESUMEN DEL CRÉDITO', PAD + tableW / 2, yy + headerResumen / 2);
@@ -1299,17 +1300,17 @@
 
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.font = '18px Arial, sans-serif';
+        ctx.font = '17px Arial, sans-serif';
         ctx.fillStyle = '#000000';
-        ctx.fillText(icono, PAD + 14, filaY + filaAltura / 2);
+        ctx.fillText(icono, PAD + 13, filaY + filaAltura / 2);
 
-        ctx.font = `700 10px ${FUENTE}`;
+        ctx.font = `700 9px ${FUENTE}`;
         ctx.fillStyle = GRIS_TXT;
-        ctx.fillText(label.toUpperCase(), PAD + 46, filaY + filaAltura / 2 - 8);
+        ctx.fillText(label.toUpperCase(), PAD + 44, filaY + filaAltura / 2 - 8);
 
-        ctx.font = `800 14px ${FUENTE}`;
+        ctx.font = `800 13px ${FUENTE}`;
         ctx.fillStyle = TEXTO;
-        ctx.fillText(valor, PAD + 46, filaY + filaAltura / 2 + 9);
+        ctx.fillText(valor, PAD + 44, filaY + filaAltura / 2 + 8);
       });
 
       ctx.restore();
@@ -1319,7 +1320,7 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      const yFooter = frameY + alturaMarco + 18;
+      const yFooter = frameY + alturaMarco + 12;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.font = `500 10px ${FUENTE}`;
