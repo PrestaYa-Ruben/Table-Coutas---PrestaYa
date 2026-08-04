@@ -1106,6 +1106,28 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('DETALLE DE CUOTAS', PAD + tableW / 2, yy + headerH / 2);
 
+      // Precalcular anchos máximos por "columna" para que el número, la etiqueta
+      // y el valor queden alineados entre todas las filas (no cada una centrada por separado)
+      const gapChico = 6;
+      let maxNumW = 0;
+      let maxValW = 0;
+      for(let f = 1; f <= seleccionada; f++){
+        const v = calcularCuota(monto, f, frecuencia);
+        ctx.font = `800 14px ${FUENTE}`;
+        maxNumW = Math.max(maxNumW, ctx.measureText(String(f)).width);
+        maxValW = Math.max(maxValW, ctx.measureText('$' + formatoNumero(v)).width);
+      }
+      ctx.font = `500 13px ${FUENTE}`;
+      const maxLabelW = Math.max(
+        ctx.measureText('Cuota de').width,
+        ctx.measureText('Cuotas de').width
+      );
+      const anchoBloque = maxNumW + gapChico + maxLabelW + gapChico + maxValW;
+      const bloqueX = PAD + (tableW - anchoBloque) / 2;
+      const numX = bloqueX;
+      const labelX = bloqueX + maxNumW + gapChico;
+      const valX = bloqueX + maxNumW + gapChico + maxLabelW + gapChico;
+
       for(let fila = 1; fila <= seleccionada; fila++){
         const filaY = yy + headerH + (fila - 1) * rowH;
         const centerY = filaY + rowH / 2;
@@ -1116,33 +1138,21 @@
         const etiqueta = fila === 1 ? 'Cuota de' : 'Cuotas de';
         const numTxt = String(fila);
         const valTxt = '$' + formatoNumero(valor);
-        const gapChico = 6;
-
-        ctx.font = `800 14px ${FUENTE}`;
-        const wNum = ctx.measureText(numTxt).width;
-        const wVal = ctx.measureText(valTxt).width;
-        ctx.font = `500 13px ${FUENTE}`;
-        const wLabel = ctx.measureText(etiqueta).width;
-
-        const anchoFrase = wNum + gapChico + wLabel + gapChico + wVal;
-        let cursorX = PAD + (tableW - anchoFrase) / 2;
 
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
 
         ctx.font = `800 14px ${FUENTE}`;
         ctx.fillStyle = VERDE;
-        ctx.fillText(numTxt, cursorX, centerY);
-        cursorX += wNum + gapChico;
+        ctx.fillText(numTxt, numX, centerY);
 
         ctx.font = `500 13px ${FUENTE}`;
         ctx.fillStyle = '#444444';
-        ctx.fillText(etiqueta, cursorX, centerY);
-        cursorX += wLabel + gapChico;
+        ctx.fillText(etiqueta, labelX, centerY);
 
         ctx.font = `800 14px ${FUENTE}`;
         ctx.fillStyle = VERDE;
-        ctx.fillText(valTxt, cursorX, centerY);
+        ctx.fillText(valTxt, valX, centerY);
       }
       ctx.restore();
 
