@@ -1025,7 +1025,7 @@
       try{ await document.fonts.ready; }catch(e){ /* seguimos con la fuente disponible */ }
     }
 
-    const W = anchoContenido || 630;
+    const W = anchoContenido || 480;
     const MARGEN = 14;   // espacio pequeño en los 4 lados
     const RADIO = 30;    // redondeo generoso estilo iOS
     const escala = 3;    // buena calidad / alta resolución
@@ -1225,7 +1225,7 @@
     const filas = 6;
     const altoGrid = filas * filaAltura + (filas - 1) * gap;
     const altoContenido = PAD + 176 + 12 + altoGrid + 18 + 14 + 16;
-    const anchoResumen = 500;
+    const anchoResumen = 360;
 
     return finalizarCaptura((ctx, W) => {
       const AZUL = '#002D62';
