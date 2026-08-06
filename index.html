@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador de Cuotas | PrestaYa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Simulador de Cuotas · PrestaYa</title>
 
 <!-- Favicons -->
 <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -18,647 +18,443 @@
 
 <style>
   :root{
-    --azul: #002D62;
-    --verde: #008F53;
-    --verde-oscuro: #05713F;
-    --fila-alt: #EAF2FA;
-    --texto: #1B1B1B;
+    --navy:#002D62;
+    --navy-light:#E7ECF3;
+    --green:#008F53;
+    --green-light:#E5F5EC;
+    --gray-bg:#EAEAEA;
+    --gray-alt:#F6F6F6;
   }
-
-  *{ box-sizing: border-box; }
-
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   body{
-    margin: 0;
-    padding: 18px 16px 28px;
-    background: #F3F4F6;
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--texto);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    zoom: 0.85;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#EEF1F5;
+    display:flex;
+    justify-content:center;
+    padding:28px 12px;
+    color:#1a1a1a;
   }
-
-  /* ---- Logo pequeño superior ---- */
-  .brand{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  .brand-logo{
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-  }
-  .brand-logo span.presta{ color: var(--azul); }
-  .brand-logo span.ya{ color: var(--verde); }
-  .brand-tag{
-    font-size: 10px;
-    color: #6B7280;
-    margin-top: 2px;
-    letter-spacing: 0.4px;
-  }
-
-  /* ---- Tarjeta principal ---- */
   .card{
-    width: 100%;
-    max-width: 400px;
-    background: #FFFFFF;
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-    position: relative;
+    width:100%;
+    max-width:420px;
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(0,45,98,0.18);
+    border:1px solid #dde2e8;
   }
 
-  /* Selector de cuotas anclado a la esquina superior izquierda de la tarjeta */
-  .cuotas-corner{
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 3;
-    background: var(--azul);
-    border-top-right-radius: 10px;
-    border-bottom-left-radius: 8px;
-    padding: 8px 12px 8px 14px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  /* Brand header */
+  .brand-header{text-align:center;padding:22px 16px 2px;}
+  .brand-title{font-size:34px;font-weight:900;letter-spacing:-.5px;text-shadow:0 1px 0 rgba(255,255,255,.8), 0 3px 6px rgba(0,45,98,.20);}
+  .brand-title .presta{color:var(--navy);}
+  .brand-title .ya{color:var(--green);}
+  .brand-subtitle{font-size:12.5px;letter-spacing:3px;color:#9aa3ad;font-weight:700;margin-top:2px;}
+
+  /* Pills row */
+  .pills-row{display:flex;gap:8px;padding:16px 14px 0;align-items:stretch;}
+
+  .pill-pct{
+    background:var(--green-light);color:var(--green);border-radius:999px;
+    padding:0 12px;display:flex;align-items:center;gap:5px;
+    font-weight:800;font-size:14px;white-space:nowrap;flex:0 0 auto;
+    cursor:pointer;
   }
-  .cuotas-picker{
-    position: relative;
-    display: flex;
-    align-items: center;
+  .pct-value{padding:9px 0;}
+  .pct-suffix{display:flex;align-items:center;gap:4px;}
+  .pct-suffix .chevron{font-size:10px;transition:transform .2s ease;}
+  .pill-pct.open .pct-suffix .chevron{transform:rotate(180deg);}
+
+  .pill-combo{
+    flex:1;background:var(--navy);border-radius:999px;
+    display:flex;align-items:center;overflow:hidden;color:#fff;
+    font-weight:800;font-size:14px;min-width:0;
   }
-  .cuotas-select-btn{
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+  .date-part{
+    position:relative;display:flex;align-items:center;gap:6px;
+    padding:9px 10px 9px 8px;cursor:pointer;flex:0 0 auto;
   }
-  .cuotas-menu{
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-    padding: 4px;
-    min-width: 84px;
-    max-height: 160px;
-    overflow-y: auto;
-    z-index: 30;
+  .hidden-date-input{position:absolute;inset:0;opacity:0;cursor:pointer;border:none;}
+  .cal-icon{
+    width:19px;height:19px;border-radius:4px;overflow:hidden;
+    display:flex;flex-direction:column;background:#fff;flex:0 0 auto;
   }
-  .cuotas-menu.open{ display: block; }
-  .cuotas-menu-item{
-    padding: 6px 9px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--texto);
-    border-radius: 5px;
-    cursor: pointer;
-    white-space: nowrap;
+  .cal-top{background:#E0433B;color:#fff;font-size:6px;font-weight:800;text-align:center;line-height:7px;letter-spacing:.3px;}
+  .cal-bottom{flex:1;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#111;}
+
+  .pill-divider{width:1px;height:20px;background:rgba(255,255,255,.3);flex:0 0 auto;}
+
+  .cuotas-part{display:flex;align-items:center;gap:5px;justify-content:center;padding:9px 12px;cursor:pointer;flex:1;white-space:nowrap;}
+  .cuotas-part .chevron{font-size:10px;transition:transform .2s ease;}
+  .cuotas-part.open .chevron{transform:rotate(180deg);}
+
+  /* Selector de porcentaje: grid de chips 5%-20%, igual patrón que el de cuotas */
+  .pct-dropdown{max-height:0;overflow:hidden;transition:max-height .25s ease;margin:0 14px;}
+  .pct-dropdown.open{max-height:200px;margin-top:8px;}
+  .pct-panel-inner{background:var(--green-light);border-radius:10px;padding:10px;}
+  .pct-grid{display:flex;flex-wrap:wrap;gap:6px;}
+  .pct-chip{
+    width:31px;height:31px;border-radius:8px;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:13px;color:var(--green);cursor:pointer;
+    border:1px solid #cfe8da;
   }
-  .cuotas-menu-item.selected{ background: var(--azul); color: #fff; }
-  .cuotas-corner .mini-arrow{
-    width: 6px;
-    height: 6px;
-    border-right: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    transform: rotate(45deg);
-    margin-left: 6px;
+  .pct-chip.active{background:var(--green);color:#fff;border-color:var(--green);}
+  .pct-info-inner{margin-top:8px;padding:0 2px;font-size:12px;color:#2b6a4c;line-height:1.5;}
+
+  /* Cuotas dropdown */
+  .cuotas-dropdown{max-height:0;overflow:hidden;transition:max-height .25s ease;margin:0 14px;}
+  .cuotas-dropdown.open{max-height:140px;margin-top:8px;}
+  .cuotas-grid{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--navy-light);border-radius:10px;}
+  .cuota-chip{
+    width:31px;height:31px;border-radius:8px;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:13.5px;color:var(--navy);cursor:pointer;
+    border:1px solid #d7dee7;
   }
-  .cuotas-corner .corner-divider{
-    width: 1px;
-    height: 16px;
-    background: rgba(255,255,255,0.35);
-    margin: 0 2px;
+  .cuota-chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+  /* Frequency custom dropdown */
+  .freq-select{position:relative;background:var(--navy);margin-top:14px;}
+  .freq-current{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 10px;cursor:pointer;user-select:none;}
+  .freq-current span.label{color:#fff;font-size:23px;font-weight:800;letter-spacing:1.5px;}
+  .freq-current .chevron{color:var(--green);font-size:14px;transition:transform .2s ease;}
+  .freq-select.open .chevron{transform:rotate(180deg);}
+  .freq-options{max-height:0;overflow:hidden;background:#fff;transition:max-height .2s ease;}
+  .freq-select.open .freq-options{max-height:200px;border-top:2px solid var(--green);}
+  .freq-option{padding:13px 16px;color:var(--navy);font-weight:700;font-size:16px;letter-spacing:.5px;cursor:pointer;border-bottom:1px solid #eee;}
+  .freq-option:last-child{border-bottom:none;}
+  .freq-option:hover{background:var(--navy-light);}
+  .freq-option.active{background:var(--navy-light);color:var(--green);}
+
+  /* Monto */
+  .monto-box{background:var(--gray-bg);text-align:center;padding:16px 10px 14px;border-bottom:1px solid #ddd;}
+  .monto-wrap{display:flex;align-items:baseline;justify-content:center;gap:4px;}
+  .monto-currency{display:none;font-size:24px;font-weight:800;color:#555;}
+  .monto-input{
+    border:none;background:transparent;font-size:38px;font-weight:800;color:#111;
+    text-align:center;width:230px;max-width:70%;font-family:Arial, Helvetica, sans-serif;border-radius:6px;
+    text-shadow:0 1px 0 rgba(255,255,255,.9), 0 2px 0 rgba(0,45,98,.25);
   }
-  .fecha-icon-btn{
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 14px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-family: Arial, Helvetica, sans-serif;
+  .monto-input:focus{outline:2px solid var(--green);}
+  .monto-hint{display:none;font-size:11px;color:#8a8a8a;margin-top:4px;}
+
+  /* Description */
+  .desc{background:var(--gray-alt);text-align:center;font-size:13.5px;line-height:1.55;color:#333;padding:14px 22px;border-bottom:1px solid #e6e6e6;}
+
+  /* Plain-text section heading (Cuotas / Fechas de pago) */
+  .section-heading{font-size:15px;font-weight:800;letter-spacing:.6px;color:var(--navy);text-transform:uppercase;padding:16px 14px 6px;background:#fff;text-shadow:0 1px 0 rgba(255,255,255,.8), 0 2px 4px rgba(0,45,98,.18);}
+  .section-heading + .card-shadow{margin-top:6px;}
+
+  /* Navy table header row (green variant for Cuotas) — colores planos */
+  thead tr{background:var(--navy);}
+  thead th{
+    background:transparent;
+    color:#fff;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;
+    padding:13px 14px;text-align:left;
   }
-  .fecha-icon-btn span{
-    font-size: 11px;
-    font-weight: 700;
+  thead th:first-child{width:28px;text-align:center;}
+  thead th:last-child{text-align:right;}
+  .thead-green tr{background:var(--green);}
+
+  /* Tarjeta con estilo de realce/grosor (borde definido, sin difuminado) */
+  .card-shadow{margin:14px 14px 0;border-radius:12px;border:1.5px solid #E1E6EC;border-bottom:3px solid #C7D0DA;}
+  .section-block{border-radius:12px;overflow:hidden;}
+
+  /* Resumen del crédito - icon grid */
+  .summary-title{font-size:17px;font-weight:900;letter-spacing:.5px;color:var(--navy);text-transform:uppercase;text-align:center;padding:18px 14px 4px;background:#fff;text-shadow:0 1px 0 rgba(255,255,255,.8), 0 2px 4px rgba(0,45,98,.18);}
+  .summary-title + .card-shadow{margin-top:6px;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 14px;padding:18px 16px;}
+  .summary-item{display:flex;align-items:center;gap:10px;min-width:0;}
+  .summary-item.full{grid-column:1 / -1;}
+  .summary-icon{
+    width:32px;height:32px;border-radius:9px;background:var(--navy-light);
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+    flex:0 0 auto;line-height:1;
   }
-  .fecha-input-oculto{
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-    border: none;
-    padding: 0;
-    margin: 0;
+  .summary-text{display:flex;flex-direction:column;gap:1px;min-width:0;}
+  .summary-label{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#8a93a3;}
+  .summary-value{font-size:14.5px;font-weight:800;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .summary-item.total .summary-icon{background:var(--green-light);}
+  .summary-item.total .summary-value{color:var(--green);font-size:17px;}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;}
+  tbody tr:nth-child(odd){background:#fff;}
+  tbody tr:nth-child(even){background:#F5F5F5;}
+  td{padding:12px 14px;font-size:18px;}
+  td.num{width:28px;font-weight:800;color:var(--green);text-align:center;}
+  td.label{color:#222;}
+  td.amount{text-align:right;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;}
+  td.date{text-align:right;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;cursor:pointer;}
+  .stamp{
+    display:inline-block;position:relative;
+    padding:4px 10px;margin:4px 6px 4px 0;
+    border:2px solid var(--green);border-radius:6px;
+    color:var(--green);font-weight:900;font-size:11.5px;
+    letter-spacing:1.5px;text-transform:uppercase;line-height:1.3;
+  }
+  .stamp::before{
+    content:'';position:absolute;inset:-4px;
+    border:1.5px dashed var(--green);border-radius:9px;
+    pointer-events:none;
   }
 
-  /* Barra superior: botón de interés (a la izquierda) */
-  .rate-bar{
-    background: #fff;
-    border-bottom: 1px solid #EEEFF1;
-    padding: 8px 14px;
-    min-height: 34px;
+  .footer-bar{height:20px;background:var(--navy);}
+
+  /* Compartir captura */
+  .share-row{background:transparent;padding:20px 14px 4px;display:flex;justify-content:center;}
+  .share-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#EEF1F5;
+    border:1.5px solid #E1E6EC;border-bottom:3px solid #C7D0DA;
+    border-radius:999px;
+    padding:10px 22px;font-family:Arial, Helvetica, sans-serif;
+    font-weight:800;font-size:14px;color:#3A4250;cursor:pointer;
+    transition:background .1s ease;
   }
-  .rate-bar-controls{
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+  .share-btn:active{
+    background:#E3E8EE;
+  }
+  .share-btn:disabled{
+    opacity:.6;
+    cursor:default;
   }
 
-  .tasa-btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #EEF8F3;
-    color: var(--verde);
-    border: 1px solid #CDE9DD;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 5px 10px;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  .tasa-btn .tasa-caret{
-    font-size: 9px;
-    transition: transform .2s ease;
-  }
-  .tasa-btn[aria-expanded="true"] .tasa-caret{ transform: rotate(180deg); }
-  .tasa-panel{
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height .2s ease, margin-top .2s ease;
-    margin-top: 0;
-  }
-  .tasa-panel.open{ max-height: 64px; margin-top: 8px; }
-  .tasa-panel label{
-    font-size: 10.5px;
-    color: #6B7280;
-    display: block;
-    margin-bottom: 4px;
-  }
-  .tasa-panel-row{ display: flex; align-items: center; gap: 6px; }
-  .tasa-panel-row input{
-    width: 66px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 5px 7px;
-    border: 1px solid #D8DCE1;
-    border-radius: 8px;
-    color: var(--texto);
-  }
-  .tasa-panel-row input:focus{ outline: none; border-color: var(--verde); }
-  .tasa-panel-row .pct{ font-weight: 700; color: #6B7280; font-size: 13px; }
-  .tasa-panel-hint{ font-size: 10px; color: #9AA0A6; margin-top: 4px; }
-
-  /* Banda frecuencia (select) — tarjeta redondeada, igual que las otras tarjetas */
-  .freq-section{ padding: 10px 14px 0; }
-  .freq-band{
-    background: var(--azul);
-    padding: 11px 16px;
-    position: relative;
-    border-radius: 10px;
-  }
-  .freq-select{
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 21px;
-    font-weight: 800;
-    text-align: center;
-    letter-spacing: 1px;
-    padding: 2px 26px;
-    cursor: pointer;
-  }
-  .freq-select:focus{ outline: none; }
-  .freq-select option{ color: #1B1B1B; font-weight: 600; }
-  .freq-arrow{
-    position: absolute;
-    right: 24px;
-    top: 50%;
-    pointer-events: none;
-    width: 11px;
-    height: 11px;
-    border-right: 3px solid #fff;
-    border-bottom: 3px solid #fff;
-    transform: translateY(-70%) rotate(45deg);
-  }
-
-  /* Banda monto (editable) */
-  .amount-band{
-    background: #ffffff;
-    padding: 11px 16px;
-    text-align: center;
-  }
-  .amount-wrap{
-    display: inline-flex;
-    align-items: baseline;
-    gap: 3px;
-  }
-  .amount-input{
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--texto);
-    background: transparent;
-    border: none;
-    text-align: center;
-    width: 170px;
-    padding: 1px 3px;
-  }
-  .amount-input:focus{ outline: none; }
-
-  /* Texto instructivo */
-  .info-band{
-    background: #ffffff;
-    padding: 10px 18px 12px;
-    text-align: center;
-    font-size: 12.5px;
-    line-height: 1.4;
-    color: #3A3A3A;
-  }
-
-  /* ---- Tabla de cuotas (estilo imagen de referencia) ---- */
-  .tabla-section{ padding: 14px; }
-  .cuotas-card{
-    background: #FFFFFF;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  }
-  .dates-card{
-    background: #FFFFFF;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  }
-  .cuotas-header-row{
-    background: var(--verde-oscuro);
-    color: #fff;
-    font-weight: 800;
-    font-size: 12px;
-    letter-spacing: 0.3px;
-    padding: 11px 14px;
-  }
-  .dates-header-row{
-    background: var(--azul);
-    color: #fff;
-    font-weight: 800;
-    font-size: 12px;
-    letter-spacing: 0.3px;
-    padding: 11px 14px;
-  }
-  .cuotas-header-row{
-    display: grid;
-    grid-template-columns: 34px 1fr auto;
-  }
-  .cuotas-header-row .col-n{ grid-column: 1 / 3; }
-  .cuotas-header-row .col-v{ text-align: right; }
-
-  .cuotas-row{
-    display: grid;
-    grid-template-columns: 34px 1fr auto;
-    align-items: center;
-    padding: 9px 14px;
-    font-size: 14.5px;
-  }
-  .cuotas-row:nth-child(odd){ background: #fff; }
-  .cuotas-row:nth-child(even){ background: var(--fila-alt); }
-  .cuotas-row .n{ font-weight: 700; color: var(--texto); }
-  .cuotas-row .label{ color: #444; }
-  .cuotas-row .value{ font-weight: 800; text-align: right; color: var(--verde); }
-
-  /* ---- Tabla de fechas de pago ---- */
-  .dates-block{ margin-top: 28px; }
-  .dates-title{
-    color: var(--azul);
-    font-weight: 800;
-    font-size: 13px;
-    letter-spacing: 0.4px;
-    margin-bottom: 8px;
-    text-align: left;
-  }
-  .dates-header-row{
-    display: grid;
-    grid-template-columns: 1fr 1.2fr 1.2fr;
-    text-align: center;
-  }
-  .dates-row{
-    display: grid;
-    grid-template-columns: 1fr 1.2fr 1.2fr;
-    align-items: center;
-    padding: 9px 8px;
-    font-size: 14px;
-    text-align: center;
-  }
-  .dates-row:nth-child(odd){ background: #fff; }
-  .dates-row:nth-child(even){ background: var(--fila-alt); }
-  .dates-row .valor{ font-weight: 800; color: var(--azul); }
-  .dates-row .fecha{ color: #333; }
-
-  footer{
-    margin-top: 12px;
-    font-size: 11px;
-    color: #8A8F98;
-    text-align: center;
-  }
-
-  .resumen-card{
-    margin-top: 16px;
-    background: #FFFFFF;
-    border-radius: 14px;
-    padding: 14px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  }
-  .resumen-title{
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: var(--azul);
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  .resumen-grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 10px;
-  }
-  .resumen-item{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #fff;
-    border-radius: 8px;
-    padding: 8px 9px;
-  }
-  .resumen-icon{
-    font-size: 15px;
-    width: 26px;
-    height: 26px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--fila-alt);
-    border-radius: 8px;
-  }
-  .resumen-label{
-    font-size: 9px;
-    color: #6B7280;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    line-height: 1.2;
-  }
-  .resumen-valor{
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--texto);
-    line-height: 1.3;
-  }
-
-  .captura-btn{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #F1F3F6;
-    border: 1px solid #E3E6EA;
-    border-radius: 999px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    color: #4B5563;
-    cursor: pointer;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .captura-btn span:first-child{ font-size: 12px; }
-  .captura-btn:disabled{ opacity: 0.6; cursor: default; }
-  .captura-btn:active{ transform: translateY(1px); }
-
+  /* Vista previa de la captura (fallback cuando no hay Web Share API) */
   .preview-overlay{
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-    z-index: 100;
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,45,98,0.75);
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+    z-index:100;
   }
-  .preview-overlay.open{ display: flex; }
+  .preview-overlay.open{display:flex;}
   .preview-box{
-    background: #fff;
-    border-radius: 14px;
-    padding: 14px;
-    max-width: 92vw;
-    max-height: 88vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    overflow: auto;
+    background:#fff;
+    border-radius:18px;
+    padding:16px;
+    max-width:92vw;
+    max-height:88vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    overflow:auto;
   }
   .preview-box img{
-    max-width: 100%;
-    max-height: 62vh;
-    border-radius: 8px;
-    display: block;
+    max-width:100%;
+    max-height:62vh;
+    border-radius:12px;
+    display:block;
+    box-shadow:0 6px 18px rgba(0,45,98,.18);
   }
   .preview-hint{
-    font-size: 12px;
-    color: #6B7280;
-    text-align: center;
-    margin: 0;
-    max-width: 300px;
+    font-size:12.5px;
+    color:#6B7280;
+    text-align:center;
+    margin:0;
+    max-width:300px;
+    line-height:1.5;
   }
   .preview-close-btn{
-    background: var(--azul);
-    color: #fff;
-    border: none;
-    padding: 9px 22px;
-    border-radius: 999px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:10px 26px;
+    border-radius:999px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-weight:800;
+    font-size:13.5px;
+    cursor:pointer;
   }
 </style>
 </head>
 <body>
 
-  <div class="brand">
-    <div class="brand-logo"><span class="presta">Presta</span><span class="ya">Ya</span></div>
-    <div class="brand-tag">SIMULADOR DE CUOTAS</div>
-  </div>
-
   <div class="card">
 
-    <div class="cuotas-corner">
-      <button id="fechaBtn" class="fecha-icon-btn" type="button" aria-label="Elegir fecha de desembolso">
-        📅 <span id="fechaBtnLabel"></span>
-      </button>
-      <span class="corner-divider"></span>
-      <div class="cuotas-picker">
-        <button id="cuotasBtn" class="cuotas-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <span id="cuotasBtnLabel">5 cuotas</span>
-          <span class="mini-arrow"></span>
-        </button>
-        <div id="cuotasMenu" class="cuotas-menu" role="listbox"></div>
-      </div>
-      <select id="cuotasSelect" class="fecha-input-oculto" tabindex="-1" aria-hidden="true"></select>
-      <input type="date" id="fechaInicioInput" class="fecha-input-oculto" tabindex="-1" aria-hidden="true">
+    <div class="brand-header">
+      <div class="brand-title"><span class="presta">Presta</span><span class="ya">Ya</span></div>
+      <div class="brand-subtitle">SIMULADOR DE CUOTAS</div>
     </div>
 
-    <div class="rate-bar">
-      <div class="rate-bar-controls">
-        <button id="tasaBtn" class="tasa-btn" type="button" aria-expanded="false">
-          <span id="tasaLabel">10% aplicado</span>
-          <span class="tasa-caret">▾</span>
-        </button>
-      </div>
-      <div id="tasaPanel" class="tasa-panel">
-        <label for="tasaInput">Interés aplicado por bloque de pago</label>
-        <div class="tasa-panel-row">
-          <input id="tasaInput" type="number" min="0" max="100" step="0.5" value="10">
-          <span class="pct">%</span>
+    <div class="pills-row">
+      <div class="pill-pct" id="pctPill">
+        <span class="pct-value" id="pctValueLabel">10</span>
+        <div class="pct-suffix" id="pctSuffix">
+          <span>% aplicado</span>
+          <span class="chevron">▾</span>
         </div>
-        <div class="tasa-panel-hint">Se aplica según la fórmula de cada modalidad</div>
       </div>
-    </div>
 
-    <div class="freq-section">
-      <div class="freq-band">
-        <select id="freqSelect" class="freq-select">
-          <option value="SEMANAL">SEMANAL</option>
-          <option value="QUINCENAL" selected>QUINCENAL</option>
-          <option value="MENSUAL">MENSUAL</option>
-        </select>
-        <div class="freq-arrow"></div>
-      </div>
-    </div>
-
-
-    <div class="amount-band">
-      <div class="amount-wrap">
-        <input id="montoInput" class="amount-input" type="text" inputmode="numeric" value="300.000">
-      </div>
-    </div>
-
-    <div class="info-band">
-      Por favor, seleccione el número de cuotas que mejor se ajuste a su bolsillo
-      <span id="freqAdverbio">quincenalmente</span>, pagar puntual nos permite seguir
-      ofreciéndole nuestro servicio.
-    </div>
-
-    <div class="tabla-section">
-      <div class="cuotas-card">
-        <div class="cuotas-header-row">
-          <div class="col-n">N° DE CUOTAS</div>
-          <div class="col-v">VALOR POR CUOTA</div>
+      <div class="pill-combo">
+        <div class="date-part" id="datePart">
+          <span class="cal-icon"><span class="cal-top" id="calMonth">AGO</span><span class="cal-bottom" id="calDay">05</span></span>
+          <span id="dateLabel">05 de ago.</span>
+          <input type="date" id="dateInput" class="hidden-date-input" aria-label="Fecha de desembolso" />
         </div>
-        <div id="cuotasRows"></div>
+        <div class="pill-divider"></div>
+        <div class="cuotas-part" id="cuotasPart">
+          <span id="cuotasLabel">5 cuotas</span>
+          <span class="chevron">▾</span>
+        </div>
       </div>
+    </div>
 
-      <button id="capturarCuotasBtn" class="captura-btn" type="button">
-        <span>📸</span><span id="capturarCuotasTexto">Compartir captura</span>
-      </button>
+    <div class="pct-dropdown" id="pctDropdown">
+      <div class="pct-panel-inner">
+        <div class="pct-grid" id="pctGrid">
+          <div class="pct-chip" data-v="5">5</div>
+          <div class="pct-chip" data-v="6">6</div>
+          <div class="pct-chip" data-v="7">7</div>
+          <div class="pct-chip" data-v="8">8</div>
+          <div class="pct-chip" data-v="9">9</div>
+          <div class="pct-chip" data-v="10">10</div>
+          <div class="pct-chip" data-v="11">11</div>
+          <div class="pct-chip" data-v="12">12</div>
+          <div class="pct-chip" data-v="13">13</div>
+          <div class="pct-chip" data-v="14">14</div>
+          <div class="pct-chip" data-v="15">15</div>
+          <div class="pct-chip" data-v="16">16</div>
+          <div class="pct-chip" data-v="17">17</div>
+          <div class="pct-chip" data-v="18">18</div>
+          <div class="pct-chip" data-v="19">19</div>
+          <div class="pct-chip" data-v="20">20</div>
+        </div>
+        <div class="pct-info-inner" id="pctInfoInner"></div>
+      </div>
+    </div>
 
-      <div class="dates-block">
-        <div class="dates-title">FECHAS DE PAGO</div>
-        <div class="dates-card">
-          <div class="dates-header-row">
-            <div>N° CUOTA</div><div>VALOR CUOTA</div><div>FECHA DE PAGO</div>
+    <div class="cuotas-dropdown" id="cuotasDropdown">
+      <div class="cuotas-grid">
+        <div class="cuota-chip" data-n="1">1</div>
+        <div class="cuota-chip" data-n="2">2</div>
+        <div class="cuota-chip" data-n="3">3</div>
+        <div class="cuota-chip" data-n="4">4</div>
+        <div class="cuota-chip" data-n="5">5</div>
+        <div class="cuota-chip" data-n="6">6</div>
+        <div class="cuota-chip" data-n="7">7</div>
+        <div class="cuota-chip" data-n="8">8</div>
+        <div class="cuota-chip" data-n="9">9</div>
+        <div class="cuota-chip" data-n="10">10</div>
+        <div class="cuota-chip" data-n="11">11</div>
+        <div class="cuota-chip" data-n="12">12</div>
+      </div>
+    </div>
+
+    <div class="freq-select" id="freqSelect">
+      <div class="freq-current" id="freqCurrent">
+        <span class="label" id="freqLabel">QUINCENAL</span>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="freq-options" id="freqOptions">
+        <div class="freq-option" data-value="SEMANAL">SEMANAL</div>
+        <div class="freq-option active" data-value="QUINCENAL">QUINCENAL</div>
+        <div class="freq-option" data-value="MENSUAL">MENSUAL</div>
+      </div>
+    </div>
+
+    <div class="monto-box">
+      <div class="monto-wrap">
+        <span class="monto-currency">$</span>
+        <input class="monto-input" id="montoInput" inputmode="numeric" autocomplete="off" value="300,000" />
+      </div>
+      <div class="monto-hint">Toca para editar el monto solicitado</div>
+    </div>
+
+    <div class="desc" id="descText"></div>
+
+    <div class="section-heading">Cuotas</div>
+    <div class="card-shadow">
+      <div class="section-block">
+        <table>
+          <thead class="thead-green"><tr><th>N° cuota</th><th></th><th>Valor cuota</th></tr></thead>
+          <tbody id="cuotasBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="share-row">
+      <button type="button" class="share-btn" id="shareCuotasBtn">📸 Compartir captura</button>
+    </div>
+
+    <div class="section-heading">Fechas de pago</div>
+    <div class="card-shadow">
+      <div class="section-block">
+        <table>
+          <thead><tr><th>N° cuota</th><th></th><th>Fecha de pago</th></tr></thead>
+          <tbody id="fechasBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="share-row">
+      <button type="button" class="share-btn" id="shareFechasBtn">📸 Compartir captura</button>
+    </div>
+
+    <div class="summary-title">Resumen del crédito</div>
+    <div class="card-shadow">
+      <div class="section-block summary-block">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-icon">💰</div>
+            <div class="summary-text">
+              <span class="summary-label">Monto</span>
+              <span class="summary-value" id="sumMonto"></span>
+            </div>
           </div>
-          <div id="datesRows"></div>
-        </div>
-
-        <button id="capturarFechasBtn" class="captura-btn" type="button">
-          <span>📸</span><span id="capturarFechasTexto">Compartir captura</span>
-        </button>
-
-        <div class="resumen-card">
-          <div class="resumen-title">RESUMEN DEL CRÉDITO</div>
-          <div class="resumen-grid">
-            <div class="resumen-item">
-              <span class="resumen-icon">💰</span>
-              <div>
-                <div class="resumen-label">Monto</div>
-                <div class="resumen-valor" id="resumenMonto">—</div>
-              </div>
+          <div class="summary-item">
+            <div class="summary-icon">🔄</div>
+            <div class="summary-text">
+              <span class="summary-label">Modalidad</span>
+              <span class="summary-value" id="sumFreq"></span>
             </div>
-            <div class="resumen-item">
-              <span class="resumen-icon">🔁</span>
-              <div>
-                <div class="resumen-label">Modalidad</div>
-                <div class="resumen-valor" id="resumenModalidad">—</div>
-              </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-icon">🏷️</div>
+            <div class="summary-text">
+              <span class="summary-label">Tasa aplicada</span>
+              <span class="summary-value" id="sumRate"></span>
             </div>
-            <div class="resumen-item">
-              <span class="resumen-icon">📆</span>
-              <div>
-                <div class="resumen-label">N° cuotas</div>
-                <div class="resumen-valor" id="resumenCuotas">—</div>
-              </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-icon">🔢</div>
+            <div class="summary-text">
+              <span class="summary-label">N° cuotas</span>
+              <span class="summary-value" id="sumN"></span>
             </div>
-            <div class="resumen-item">
-              <span class="resumen-icon">💵</span>
-              <div>
-                <div class="resumen-label">Valor cuota</div>
-                <div class="resumen-valor" id="resumenValorCuota">—</div>
-              </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-icon">📅</div>
+            <div class="summary-text">
+              <span class="summary-label">Desembolso</span>
+              <span class="summary-value" id="sumDesembolso"></span>
             </div>
-            <div class="resumen-item">
-              <span class="resumen-icon">📊</span>
-              <div>
-                <div class="resumen-label">Total a pagar</div>
-                <div class="resumen-valor" id="resumenTotal">—</div>
-              </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-icon">🗓️</div>
+            <div class="summary-text">
+              <span class="summary-label">Última cuota</span>
+              <span class="summary-value" id="sumUltima"></span>
             </div>
-            <div class="resumen-item">
-              <span class="resumen-icon">📈</span>
-              <div>
-                <div class="resumen-label">Intereses</div>
-                <div class="resumen-valor" id="resumenIntereses">—</div>
-              </div>
+          </div>
+          <div class="summary-item total full">
+            <div class="summary-icon">📊</div>
+            <div class="summary-text">
+              <span class="summary-label">Total a pagar</span>
+              <span class="summary-value" id="sumTotal"></span>
             </div>
           </div>
         </div>
-
-        <button id="capturarResumenBtn" class="captura-btn" type="button">
-          <span>📸</span><span id="capturarResumenTexto">Compartir captura</span>
-        </button>
       </div>
     </div>
+    <div class="share-row">
+      <button type="button" class="share-btn" id="shareResumenBtn">📸 Compartir captura</button>
+    </div>
 
+    <div class="footer-bar"></div>
   </div>
 
   <div id="previewOverlay" class="preview-overlay">
@@ -669,294 +465,487 @@
     </div>
   </div>
 
-  <footer>PrestaYa · Los valores son referenciales y pueden variar</footer>
-
 <script>
-  const freqSelect = document.getElementById('freqSelect');
-  const montoInput = document.getElementById('montoInput');
-  const freqAdverbio = document.getElementById('freqAdverbio');
-  const cuotasSelect = document.getElementById('cuotasSelect');
-  const cuotasBtn = document.getElementById('cuotasBtn');
-  const cuotasBtnLabel = document.getElementById('cuotasBtnLabel');
-  const cuotasMenu = document.getElementById('cuotasMenu');
-  const cuotasRows = document.getElementById('cuotasRows');
-  const datesRows = document.getElementById('datesRows');
-  const resumenMonto = document.getElementById('resumenMonto');
-  const resumenModalidad = document.getElementById('resumenModalidad');
-  const resumenCuotas = document.getElementById('resumenCuotas');
-  const resumenValorCuota = document.getElementById('resumenValorCuota');
-  const resumenTotal = document.getElementById('resumenTotal');
-  const resumenIntereses = document.getElementById('resumenIntereses');
-  const capturarCuotasBtn = document.getElementById('capturarCuotasBtn');
-  const capturarCuotasTexto = document.getElementById('capturarCuotasTexto');
-  const capturarFechasBtn = document.getElementById('capturarFechasBtn');
-  const capturarFechasTexto = document.getElementById('capturarFechasTexto');
-  const capturarResumenBtn = document.getElementById('capturarResumenBtn');
-  const capturarResumenTexto = document.getElementById('capturarResumenTexto');
-  const tasaBtn = document.getElementById('tasaBtn');
-  const tasaPanel = document.getElementById('tasaPanel');
-  const tasaInput = document.getElementById('tasaInput');
-  const tasaLabel = document.getElementById('tasaLabel');
-  const fechaBtn = document.getElementById('fechaBtn');
-  const fechaBtnLabel = document.getElementById('fechaBtnLabel');
-  const fechaInicioInput = document.getElementById('fechaInicioInput');
+  const blockSizes    = { SEMANAL: 4, QUINCENAL: 2, MENSUAL: 1 };
+  const intervalDays  = { SEMANAL: 7, QUINCENAL: 15, MENSUAL: 30 };
+  const freqWord      = { SEMANAL: 'semanalmente', QUINCENAL: 'quincenalmente', MENSUAL: 'mensualmente' };
+  const monthShort    = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const monthCal      = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 
-  const MAX_CUOTAS = 12;
-  let tasaBase = 10; // porcentaje editable aplicado por bloque de pago
-  let fechaInicio = new Date(); // fecha editable de la primera cuota
-
-  const ADVERBIOS = {
-    SEMANAL: 'semanalmente',
-    QUINCENAL: 'quincenalmente',
-    MENSUAL: 'mensualmente'
+  const today = new Date();
+  const state = {
+    monto: 300000,
+    freq: 'QUINCENAL',
+    numCuotas: 5,
+    baseRatePct: 10,
+    disbursementDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    paidRows: new Set()
   };
 
-  // Cuotas que conforman un mismo "bloque" de recargo por modalidad.
-  const BLOQUE = { SEMANAL: 4, QUINCENAL: 2, MENSUAL: 1 };
+  const pad2 = n => (n < 10 ? '0' + n : '' + n);
+  const formatMoney = n => Math.round(n).toLocaleString('en-US');
+  const formatDateLabel = d => `${pad2(d.getDate())} de ${monthShort[d.getMonth()]}.`;
+  const toISODateInput  = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
-  // Días entre cada cuota según la frecuencia, para la tabla de fechas de pago.
-  const INTERVALO_DIAS = { SEMANAL: 8, QUINCENAL: 15, MENSUAL: 30 };
-
-  const MESES = ['ene.','feb.','mar.','abr.','may.','jun.','jul.','ago.','sep.','oct.','nov.','dic.'];
-
-  function formatoNumero(num){
-    return Math.round(num).toLocaleString('es-CO');
-  }
-
-  function parseMonto(valor){
-    const limpio = valor.replace(/[^0-9]/g, '');
-    return limpio ? parseInt(limpio, 10) : 0;
-  }
-
-  function redondearMilSuperior(valor){
-    return Math.ceil(valor / 1000) * 1000;
-  }
-
-  function formatearPct(v){
-    return Number.isInteger(v) ? v : parseFloat(v.toFixed(1));
-  }
-
-  function calcularCuota(monto, fila, frecuencia){
-    const bloque = BLOQUE[frecuencia];
-    const pasos = Math.ceil(fila / bloque);
-    const recargo = (tasaBase / 100) * pasos;
-    const total = monto * (1 + recargo);
-    const valorCuota = total / fila;
-    return redondearMilSuperior(valorCuota);
-  }
-
-  function formatearFecha(fecha){
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = MESES[fecha.getMonth()];
-    return `${dia} de ${mes}`;
-  }
-
-  function formatoISO(fecha){
-    const y = fecha.getFullYear();
-    const m = String(fecha.getMonth() + 1).padStart(2, '0');
-    const d = String(fecha.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
-  function actualizarFechaBtnLabel(){
-    fechaBtnLabel.textContent = formatearFecha(fechaInicio);
-  }
-
-  function llenarCuotasSelect(){
-    let htmlSelect = '';
-    let htmlMenu = '';
-    for(let i = 1; i <= MAX_CUOTAS; i++){
-      const etiqueta = `${i} ${i === 1 ? 'cuota' : 'cuotas'}`;
-      htmlSelect += `<option value="${i}">${etiqueta}</option>`;
-      htmlMenu += `<div class="cuotas-menu-item" data-valor="${i}">${etiqueta}</div>`;
+  // cuota n = (monto + 10%*bloque) / n, bloque sube cada blockSize cuotas
+  // se redondea al millar superior, salvo la cuota 1 que queda exacta
+  function calcCuotas(monto, freq, N, ratePct){
+    const block = blockSizes[freq];
+    const rows = [];
+    for(let n = 1; n <= N; n++){
+      const blockIndex = Math.ceil(n / block);
+      const rate = (ratePct / 100) * blockIndex;
+      const total = monto * (1 + rate);
+      let val = total / n;
+      val = (n === 1) ? Math.round(val) : Math.ceil(val / 1000) * 1000;
+      rows.push(val);
     }
-    cuotasSelect.innerHTML = htmlSelect;
-    cuotasSelect.value = '5'; // valor inicial de ejemplo
-    cuotasMenu.innerHTML = htmlMenu;
-    actualizarCuotasBtnLabel();
-    marcarCuotaSeleccionada();
+    return rows;
   }
 
-  function actualizarCuotasBtnLabel(){
-    const val = parseInt(cuotasSelect.value, 10);
-    cuotasBtnLabel.textContent = `${val} ${val === 1 ? 'cuota' : 'cuotas'}`;
+  // fecha de pago cuota n = fecha de desembolso + n * intervalo (nunca cae el mismo día del desembolso)
+  function calcPaymentDates(disbursementDate, freq, N){
+    const days = intervalDays[freq];
+    const dates = [];
+    for(let n = 1; n <= N; n++){
+      const d = new Date(disbursementDate);
+      d.setDate(d.getDate() + days * n);
+      dates.push(d);
+    }
+    return dates;
   }
 
-  function marcarCuotaSeleccionada(){
-    const val = cuotasSelect.value;
-    cuotasMenu.querySelectorAll('.cuotas-menu-item').forEach((item) => {
-      item.classList.toggle('selected', item.dataset.valor === val);
+  function render(){
+    // frecuencia
+    document.getElementById('freqLabel').textContent = state.freq;
+    document.getElementById('descText').textContent =
+      `Por favor, seleccione el número de cuotas que mejor se ajuste a su bolsillo ${freqWord[state.freq]}, pagar puntual nos permite seguir ofreciéndole nuestro servicio.`;
+
+    // pill de porcentaje
+    document.getElementById('pctValueLabel').textContent = `${state.baseRatePct}`;
+    document.getElementById('pctInfoInner').textContent =
+      `Se aplica +${state.baseRatePct}% cada ${blockSizes[state.freq]} cuota${blockSizes[state.freq] === 1 ? '' : 's'} en modalidad ${state.freq.toLowerCase()}.`;
+    document.querySelectorAll('.pct-chip').forEach(chip => {
+      chip.classList.toggle('active', parseInt(chip.dataset.v, 10) === state.baseRatePct);
     });
+
+    // pill de fecha + cuotas
+    document.getElementById('dateLabel').textContent = formatDateLabel(state.disbursementDate);
+    document.getElementById('calMonth').textContent = monthCal[state.disbursementDate.getMonth()];
+    document.getElementById('calDay').textContent = pad2(state.disbursementDate.getDate());
+    document.getElementById('dateInput').value = toISODateInput(state.disbursementDate);
+    document.getElementById('cuotasLabel').textContent = `${state.numCuotas} cuota${state.numCuotas === 1 ? '' : 's'}`;
+    document.querySelectorAll('.cuota-chip').forEach(chip => {
+      chip.classList.toggle('active', parseInt(chip.dataset.n, 10) === state.numCuotas);
+    });
+
+    // tabla de cuotas
+    const cuotas = calcCuotas(state.monto, state.freq, state.numCuotas, state.baseRatePct);
+    const cBody = document.getElementById('cuotasBody');
+    cBody.innerHTML = '';
+    cuotas.forEach((val, idx) => {
+      const n = idx + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        `<td class="num">${n}</td>` +
+        `<td class="label">${n === 1 ? 'Cuota de' : 'Cuotas de'}</td>` +
+        `<td class="amount">${formatMoney(val)}</td>`;
+      cBody.appendChild(tr);
+    });
+
+    // tabla de fechas de pago
+    const fechas = calcPaymentDates(state.disbursementDate, state.freq, state.numCuotas);
+    const fBody = document.getElementById('fechasBody');
+    fBody.innerHTML = '';
+    fechas.forEach((d, idx) => {
+      const n = idx + 1;
+      const isPaid = state.paidRows.has(n);
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        `<td class="num">${n}</td>` +
+        `<td class="label">${n === 1 ? 'Cuota de' : 'Cuotas de'}</td>` +
+        `<td class="date${isPaid ? ' paid' : ''}" data-n="${n}">${isPaid ? '<span class="stamp">Pagado</span>' : formatDateLabel(d)}</td>`;
+      fBody.appendChild(tr);
+    });
+
+    // resumen del crédito
+    const totalPagar = cuotas.reduce((acc, val) => acc + val, 0);
+    document.getElementById('sumMonto').textContent = `$${formatMoney(state.monto)}`;
+    document.getElementById('sumFreq').textContent = state.freq;
+    document.getElementById('sumRate').textContent = `${state.baseRatePct}%`;
+    document.getElementById('sumN').textContent = `${state.numCuotas}`;
+    document.getElementById('sumDesembolso').textContent = formatDateLabel(state.disbursementDate);
+    document.getElementById('sumUltima').textContent = formatDateLabel(fechas[fechas.length - 1]);
+    document.getElementById('sumTotal').textContent = `$${formatMoney(totalPagar)}`;
   }
 
-  function renderOpciones(monto, frecuencia, seleccionada){
-    let html = '';
-    for(let fila = 1; fila <= seleccionada; fila++){
-      const valor = calcularCuota(monto, fila, frecuencia);
-      const etiqueta = fila === 1 ? 'Cuota de' : 'Cuotas de';
-      html += `
-        <div class="cuotas-row">
-          <div class="n">${fila}</div>
-          <div class="label">${etiqueta}</div>
-          <div class="value">$${formatoNumero(valor)}</div>
-        </div>`;
+  // --- Monto: formato de miles en vivo con preservación del cursor ---
+  const montoInput = document.getElementById('montoInput');
+  montoInput.addEventListener('input', (e) => {
+    const input = e.target;
+    const cursorPos = input.selectionStart;
+    const rawBefore = input.value.slice(0, cursorPos).replace(/\D/g, '').length;
+    const digits = input.value.replace(/\D/g, '').slice(0, 12);
+    const numVal = digits ? parseInt(digits, 10) : 0;
+    const formatted = numVal.toLocaleString('en-US');
+    input.value = formatted;
+    state.monto = numVal;
+
+    let count = 0, pos = formatted.length;
+    for(let i = 0; i < formatted.length; i++){
+      if(/\d/.test(formatted[i])) count++;
+      if(count === rawBefore){ pos = i + 1; break; }
     }
-    cuotasRows.innerHTML = html;
-  }
-
-  function renderFechas(monto, frecuencia, seleccionada){
-    const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
-    const intervalo = INTERVALO_DIAS[frecuencia];
-    let fecha = new Date(fechaInicio.getTime());
-    let html = '';
-    for(let i = 1; i <= seleccionada; i++){
-      fecha = new Date(fecha.getTime() + intervalo * 24 * 60 * 60 * 1000);
-      html += `
-        <div class="dates-row">
-          <div>${i}</div>
-          <div class="valor">$${formatoNumero(valorCuota)}</div>
-          <div class="fecha">${formatearFecha(fecha)}</div>
-        </div>`;
-    }
-    datesRows.innerHTML = html;
-  }
-
-  function renderResumen(monto, frecuencia, seleccionada){
-    const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
-    const total = valorCuota * seleccionada;
-    const intereses = total - monto;
-
-    resumenMonto.textContent = '$' + formatoNumero(monto);
-    resumenModalidad.textContent = freqSelect.options[freqSelect.selectedIndex].text;
-    resumenCuotas.textContent = seleccionada;
-    resumenValorCuota.textContent = '$' + formatoNumero(valorCuota);
-    resumenTotal.textContent = '$' + formatoNumero(total);
-    resumenIntereses.textContent = '$' + formatoNumero(intereses);
-  }
-
-  function renderTodo(){
-    const monto = parseMonto(montoInput.value);
-    const frecuencia = freqSelect.value;
-    const seleccionada = parseInt(cuotasSelect.value, 10);
-
-    freqAdverbio.textContent = ADVERBIOS[frecuencia];
-
-    renderOpciones(monto, frecuencia, seleccionada);
-    renderFechas(monto, frecuencia, seleccionada);
-    renderResumen(monto, frecuencia, seleccionada);
-  }
-
-  montoInput.addEventListener('input', () => {
-    const cursorAlFinal = montoInput.selectionStart === montoInput.value.length;
-    const monto = parseMonto(montoInput.value);
-    montoInput.value = monto ? formatoNumero(monto) : '';
-    if(cursorAlFinal){
-      montoInput.selectionStart = montoInput.selectionEnd = montoInput.value.length;
-    }
-    renderTodo();
+    input.setSelectionRange(pos, pos);
+    render();
   });
-
   montoInput.addEventListener('blur', () => {
-    if(parseMonto(montoInput.value) <= 0){
-      montoInput.value = '300.000';
-      renderTodo();
+    if(!state.monto){ state.monto = 0; montoInput.value = '0'; }
+    render();
+  });
+
+  // --- Pill de porcentaje: toca para abrir el selector de 5% a 20% ---
+  const pctPill = document.getElementById('pctPill');
+  const pctDropdown = document.getElementById('pctDropdown');
+
+  pctPill.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pctPill.classList.toggle('open');
+    pctDropdown.classList.toggle('open');
+  });
+  document.querySelectorAll('.pct-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.baseRatePct = parseInt(chip.dataset.v, 10);
+      pctPill.classList.remove('open');
+      pctDropdown.classList.remove('open');
+      render();
+    });
+  });
+
+  // --- Fecha de desembolso ---
+  document.getElementById('dateInput').addEventListener('change', (e) => {
+    const [y, m, d] = e.target.value.split('-').map(Number);
+    if(y && m && d){
+      state.disbursementDate = new Date(y, m - 1, d);
+      render();
     }
   });
 
-  freqSelect.addEventListener('change', renderTodo);
-
-  cuotasBtn.addEventListener('click', () => {
-    tasaPanel.classList.remove('open');
-    tasaBtn.setAttribute('aria-expanded', 'false');
-    const abierto = cuotasMenu.classList.toggle('open');
-    cuotasBtn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+  // --- Marcar cuota como pagada: toca la fecha en la tabla de Fechas de pago ---
+  document.getElementById('fechasBody').addEventListener('click', (e) => {
+    const cell = e.target.closest('td.date');
+    if(!cell) return;
+    const n = parseInt(cell.dataset.n, 10);
+    if(state.paidRows.has(n)) state.paidRows.delete(n);
+    else state.paidRows.add(n);
+    render();
   });
 
-  cuotasMenu.addEventListener('click', (e) => {
-    const item = e.target.closest('.cuotas-menu-item');
-    if(!item) return;
-    cuotasSelect.value = item.dataset.valor;
-    actualizarCuotasBtnLabel();
-    marcarCuotaSeleccionada();
-    cuotasMenu.classList.remove('open');
-    cuotasBtn.setAttribute('aria-expanded', 'false');
-    renderTodo();
+  // --- Selector de número de cuotas ---
+  const cuotasPart = document.getElementById('cuotasPart');
+  const cuotasDropdown = document.getElementById('cuotasDropdown');
+  cuotasPart.addEventListener('click', (e) => {
+    e.stopPropagation();
+    cuotasPart.classList.toggle('open');
+    cuotasDropdown.classList.toggle('open');
+  });
+  document.querySelectorAll('.cuota-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.numCuotas = parseInt(chip.dataset.n, 10);
+      cuotasPart.classList.remove('open');
+      cuotasDropdown.classList.remove('open');
+      render();
+    });
   });
 
-  document.addEventListener('click', (e) => {
-    if(!e.target.closest('.cuotas-picker')){
-      cuotasMenu.classList.remove('open');
-      cuotasBtn.setAttribute('aria-expanded', 'false');
-    }
+  // --- Selector de frecuencia ---
+  const freqSelect = document.getElementById('freqSelect');
+  const freqCurrent = document.getElementById('freqCurrent');
+  freqCurrent.addEventListener('click', (e) => {
+    e.stopPropagation();
+    freqSelect.classList.toggle('open');
+  });
+  document.querySelectorAll('.freq-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      state.freq = opt.dataset.value;
+      document.querySelectorAll('.freq-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      freqSelect.classList.remove('open');
+      render();
+    });
   });
 
-  tasaBtn.addEventListener('click', () => {
-    const abierto = tasaPanel.classList.toggle('open');
-    tasaBtn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-    if(abierto){
-      cuotasMenu.classList.remove('open');
-      cuotasBtn.setAttribute('aria-expanded', 'false');
-      tasaInput.focus();
-    }
-  });
-
-  tasaInput.addEventListener('input', () => {
-    let val = parseFloat(tasaInput.value);
-    if(isNaN(val) || val < 0) val = 0;
-    if(val > 100) val = 100;
-    tasaBase = val;
-    tasaLabel.textContent = `${formatearPct(tasaBase)}% aplicado`;
-    renderTodo();
-  });
-
-  fechaBtn.addEventListener('click', () => {
-    if(typeof fechaInicioInput.showPicker === 'function'){
-      try{ fechaInicioInput.showPicker(); return; }
-      catch(e){ /* algunos navegadores lanzan error si no hay soporte real */ }
-    }
-    fechaInicioInput.focus();
-    fechaInicioInput.click();
-  });
-
-  fechaInicioInput.addEventListener('change', () => {
-    if(fechaInicioInput.value){
-      const [y, m, d] = fechaInicioInput.value.split('-').map(Number);
-      fechaInicio = new Date(y, m - 1, d);
-      actualizarFechaBtnLabel();
-      renderTodo();
-    }
-  });
-
-  /* ===================== Captura de pantalla por tarjeta ===================== */
-
-  function dibujarRectRedondeado(ctx, x, y, w, h, r){
+  // --- Compartir captura: dibujo nativo en Canvas 2D (html2canvas no es confiable en móvil) ---
+  function roundRectPath(ctx, x, y, w, h, r){
     ctx.beginPath();
     ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.arcTo(x + w, y, x + w, y + r, r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-    ctx.lineTo(x + r, y + h);
-    ctx.arcTo(x, y + h, x, y + h - r, r);
-    ctx.lineTo(x, y + r);
-    ctx.arcTo(x, y, x + r, y, r);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
     ctx.closePath();
   }
 
-  function numeroAleatorio1a100(){
-    return Math.floor(Math.random() * 100) + 1;
+  function drawBrandHeader(ctx, width, pad, scale){
+    ctx.textBaseline = 'middle';
+    ctx.font = `900 ${22 * scale}px Arial`;
+    const prestaW = ctx.measureText('Presta').width;
+    const yaW = ctx.measureText('Ya').width;
+    const startX = width / 2 - (prestaW + yaW) / 2;
+    const logoY = pad + (23 * scale);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#002D62';
+    ctx.fillText('Presta', startX, logoY);
+    ctx.fillStyle = '#008F53';
+    ctx.fillText('Ya', startX + prestaW, logoY);
+    ctx.font = `700 ${10 * scale}px Arial`;
+    ctx.fillStyle = '#9aa3ad';
+    ctx.textAlign = 'center';
+    ctx.fillText('SIMULADOR DE CUOTAS', width / 2, logoY + 20 * scale);
   }
 
-  function timestampArchivo(){
-    const ahora = new Date();
-    const y = ahora.getFullYear();
-    const m = String(ahora.getMonth() + 1).padStart(2, '0');
-    const d = String(ahora.getDate()).padStart(2, '0');
-    const h = String(ahora.getHours()).padStart(2, '0');
-    const min = String(ahora.getMinutes()).padStart(2, '0');
-    return `${y}${m}${d}-${h}${min}`;
+  // Texto instructivo ("Por favor, seleccione...") tomado del texto visible en pantalla,
+  // envuelto en varias líneas para que quepa dentro de la captura.
+  function textoDescripcionActual(){
+    return document.getElementById('descText').textContent;
   }
 
+  function envolverTexto(ctx, texto, maxWidth){
+    const palabras = texto.split(' ');
+    const lineas = [];
+    let actual = '';
+    palabras.forEach(palabra => {
+      const prueba = actual ? actual + ' ' + palabra : palabra;
+      if(ctx.measureText(prueba).width > maxWidth && actual){
+        lineas.push(actual);
+        actual = palabra;
+      } else {
+        actual = prueba;
+      }
+    });
+    if(actual) lineas.push(actual);
+    return lineas;
+  }
+
+  function calcularLineasDescripcion(scale, maxWidthPx){
+    const tmp = document.createElement('canvas');
+    const tctx = tmp.getContext('2d');
+    tctx.font = `400 ${12.5 * scale}px Arial`;
+    return envolverTexto(tctx, textoDescripcionActual(), maxWidthPx);
+  }
+
+  function dibujarDescripcion(ctx, width, startY, scale, lineas){
+    if(!lineas.length) return;
+    ctx.fillStyle = '#3A3A3A';
+    ctx.font = `400 ${12.5 * scale}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const lineH = 16 * scale;
+    lineas.forEach((linea, idx) => {
+      ctx.fillText(linea, width / 2, startY + idx * lineH + lineH / 2);
+    });
+  }
+
+  // Sello "PAGADO" dibujado en canvas, alineado a la derecha en (rightX, centerY)
+  function drawStamp(ctx, rightX, centerY, scale){
+    const w = 92 * scale, h = 26 * scale;
+    const x = rightX - w, y = centerY - h / 2;
+    ctx.save();
+    ctx.strokeStyle = '#008F53';
+    ctx.lineWidth = 2 * scale;
+    roundRectPath(ctx, x, y, w, h, 6 * scale);
+    ctx.stroke();
+    ctx.setLineDash([3 * scale, 3 * scale]);
+    ctx.lineWidth = 1.5 * scale;
+    roundRectPath(ctx, x - 4 * scale, y - 4 * scale, w + 8 * scale, h + 8 * scale, 9 * scale);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#008F53';
+    ctx.font = `900 ${11 * scale}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PAGADO', x + w / 2, y + h / 2 + 0.5 * scale);
+    ctx.restore();
+  }
+
+  // tabla de 2 columnas: N° + valor / fecha, con encabezado de color (verde o navy)
+  // rows: [{ num, value, isStamp }]
+  function buildTableCaptureCanvas({ headerColor, colHeaders, rows }){
+    const scale = 2;
+    const width = 360 * scale;
+    const pad = 20 * scale;
+    const logoBlockH = 60 * scale;
+    const topGap = 14 * scale;
+    const headerRowH = 42 * scale;
+    const dataRowH = 42 * scale;
+    const cardRadius = 16 * scale;
+    const cardW = width - pad * 2;
+
+    const lineasDesc = calcularLineasDescripcion(scale, cardW - 24 * scale);
+    const descBlockH = lineasDesc.length ? (lineasDesc.length * 16 * scale + 10 * scale) : 0;
+
+    const cardH = headerRowH + rows.length * dataRowH;
+    const height = pad + logoBlockH + descBlockH + topGap + cardH + pad;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#EEF1F5';
+    ctx.fillRect(0, 0, width, height);
+
+    drawBrandHeader(ctx, width, pad, scale);
+    dibujarDescripcion(ctx, width, pad + logoBlockH, scale, lineasDesc);
+
+    const cardX = pad, cardY = pad + logoBlockH + descBlockH + topGap;
+    ctx.save();
+    roundRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.clip();
+
+    ctx.fillStyle = headerColor;
+    ctx.fillRect(cardX, cardY, cardW, headerRowH);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${13 * scale}px Arial`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText(colHeaders[0].toUpperCase(), cardX + 16 * scale, cardY + headerRowH / 2);
+    ctx.textAlign = 'right';
+    ctx.fillText(colHeaders[1].toUpperCase(), cardX + cardW - 16 * scale, cardY + headerRowH / 2);
+
+    rows.forEach((row, idx) => {
+      const ry = cardY + headerRowH + idx * dataRowH;
+      ctx.fillStyle = idx % 2 === 0 ? '#ffffff' : '#F5F5F5';
+      ctx.fillRect(cardX, ry, cardW, dataRowH);
+      ctx.fillStyle = '#111111';
+      ctx.font = `800 ${14 * scale}px Arial`;
+      ctx.textAlign = 'left';
+      ctx.fillText(String(row.num), cardX + 16 * scale, ry + dataRowH / 2);
+      if(row.isStamp){
+        drawStamp(ctx, cardX + cardW - 16 * scale, ry + dataRowH / 2, scale);
+      } else {
+        ctx.textAlign = 'right';
+        ctx.fillText(row.value, cardX + cardW - 16 * scale, ry + dataRowH / 2);
+      }
+    });
+    ctx.restore();
+
+    roundRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.strokeStyle = '#dde2e8';
+    ctx.lineWidth = 1 * scale;
+    ctx.stroke();
+
+    return canvas;
+  }
+
+  // lista de resumen: título centrado + filas etiqueta/valor, última fila resaltada en verde
+  function buildSummaryCaptureCanvas({ title, rows, totalIndex }){
+    const scale = 2;
+    const width = 360 * scale;
+    const pad = 20 * scale;
+    const logoBlockH = 60 * scale;
+    const topGap = 14 * scale;
+    const titleH = 46 * scale;
+    const rowH = 40 * scale;
+    const cardRadius = 16 * scale;
+    const cardW = width - pad * 2;
+
+    const lineasDesc = calcularLineasDescripcion(scale, cardW - 24 * scale);
+    const descBlockH = lineasDesc.length ? (lineasDesc.length * 16 * scale + 10 * scale) : 0;
+
+    const cardH = titleH + rows.length * rowH;
+    const height = pad + logoBlockH + descBlockH + topGap + cardH + pad;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#EEF1F5';
+    ctx.fillRect(0, 0, width, height);
+
+    drawBrandHeader(ctx, width, pad, scale);
+    dibujarDescripcion(ctx, width, pad + logoBlockH, scale, lineasDesc);
+
+    const cardX = pad, cardY = pad + logoBlockH + descBlockH + topGap;
+    ctx.save();
+    roundRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.clip();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cardX, cardY, cardW, cardH);
+
+    ctx.fillStyle = '#002D62';
+    ctx.font = `900 ${15 * scale}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(title.toUpperCase(), cardX + cardW / 2, cardY + titleH / 2);
+
+    rows.forEach((row, idx) => {
+      const ry = cardY + titleH + idx * rowH;
+      const isTotal = idx === totalIndex;
+      ctx.fillStyle = isTotal ? '#E5F5EC' : (idx % 2 === 0 ? '#ffffff' : '#F5F5F5');
+      ctx.fillRect(cardX, ry, cardW, rowH);
+      ctx.font = `700 ${12.5 * scale}px Arial`;
+      ctx.fillStyle = '#555555';
+      ctx.textAlign = 'left';
+      ctx.fillText(row[0], cardX + 16 * scale, ry + rowH / 2);
+      ctx.font = `800 ${(isTotal ? 15 : 13.5) * scale}px Arial`;
+      ctx.fillStyle = isTotal ? '#008F53' : '#111111';
+      ctx.textAlign = 'right';
+      ctx.fillText(row[1], cardX + cardW - 16 * scale, ry + rowH / 2);
+    });
+    ctx.restore();
+
+    roundRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.strokeStyle = '#dde2e8';
+    ctx.lineWidth = 1 * scale;
+    ctx.stroke();
+
+    return canvas;
+  }
+
+  // Empaqueta el canvas ya dibujado con margen blanco y esquinas muy redondeadas (estilo iOS)
+  function empaquetarCaptura(canvasOriginal){
+    const MARGEN = 24;
+    const RADIO = 30;
+    const w = canvasOriginal.width + MARGEN * 2;
+    const h = canvasOriginal.height + MARGEN * 2;
+
+    const base = document.createElement('canvas');
+    base.width = w;
+    base.height = h;
+    const ctxBase = base.getContext('2d');
+    ctxBase.fillStyle = '#ffffff';
+    ctxBase.fillRect(0, 0, w, h);
+    ctxBase.drawImage(canvasOriginal, MARGEN, MARGEN);
+
+    const final = document.createElement('canvas');
+    final.width = w;
+    final.height = h;
+    const ctxFinal = final.getContext('2d');
+    roundRectPath(ctxFinal, 0, 0, w, h, RADIO);
+    ctxFinal.clip();
+    ctxFinal.drawImage(base, 0, 0);
+    return final;
+  }
+
+  function timestampParts(){
+    const d = new Date();
+    return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}`;
+  }
+
+  const TEXTO_COMPARTIR_ORIGINAL = '📸 Compartir captura';
+
+  function iniciarEstadoGenerando(btn){
+    btn.disabled = true;
+    btn.textContent = '⏳ Generando…';
+  }
+  function finalizarEstadoGenerando(btn){
+    btn.disabled = false;
+    btn.textContent = TEXTO_COMPARTIR_ORIGINAL;
+  }
+
+  // Vista previa (fallback cuando no hay Web Share API o el usuario no puede compartir directo)
   const previewOverlay = document.getElementById('previewOverlay');
   const previewImg = document.getElementById('previewImg');
   const previewCloseBtn = document.getElementById('previewCloseBtn');
@@ -968,408 +957,25 @@
     previewImg.src = previewUrlActual;
     previewOverlay.classList.add('open');
   }
-
-  previewCloseBtn.addEventListener('click', () => {
-    previewOverlay.classList.remove('open');
-  });
+  previewCloseBtn.addEventListener('click', () => previewOverlay.classList.remove('open'));
   previewOverlay.addEventListener('click', (e) => {
     if(e.target === previewOverlay) previewOverlay.classList.remove('open');
   });
 
-  // Dibuja el encabezado común (logo, modalidad, monto) y devuelve la altura ocupada
-  // Logo y subtítulo: van FUERA del marco con borde, arriba de la tarjeta
-  function dibujarLogo(ctx, W, PAD, subtitulo){
-    const AZUL = '#002D62';
-    const VERDE = '#008F53';
-    const GRIS_TXT = '#6B7280';
-    const FUENTE = 'Arial, Helvetica, sans-serif';
-    const cx = W / 2;
-    let y = PAD;
-
-    ctx.font = `800 21px ${FUENTE}`;
-    const wPresta = ctx.measureText('Presta').width;
-    const wYa = ctx.measureText('Ya').width;
-    const lx = cx - (wPresta + wYa) / 2;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = AZUL;
-    ctx.fillText('Presta', lx, y + 15);
-    ctx.fillStyle = VERDE;
-    ctx.fillText('Ya', lx + wPresta, y + 15);
-
-    y += 25;
-    ctx.textAlign = 'center';
-    ctx.font = `700 11px ${FUENTE}`;
-    ctx.fillStyle = GRIS_TXT;
-    ctx.fillText(subtitulo, cx, y);
-
-    y += 12;
-    return y; // punto donde debe empezar el marco con borde
-  }
-
-  // Banda de modalidad + monto: van DENTRO del marco con borde (se dibuja después de hacer el clip)
-  const ALTURA_BANDA_MONTO = 99;
-  function dibujarBandaYMonto(ctx, W, PAD, y){
-    const AZUL = '#002D62';
-    const GRIS_TXT = '#6B7280';
-    const TEXTO = '#1B1B1B';
-    const FUENTE = 'Arial, Helvetica, sans-serif';
-    const cx = W / 2;
-    const tableW = W - PAD * 2;
-    const altoBanda = 46;
-
-    const freqTexto = freqSelect.options[freqSelect.selectedIndex].text;
-    ctx.fillStyle = AZUL;
-    ctx.fillRect(PAD, y, tableW, altoBanda);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `800 21px ${FUENTE}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(freqTexto, cx, y + altoBanda / 2 + 1);
-
-    y += altoBanda + 12;
-
-    const monto = parseMonto(montoInput.value);
-    ctx.textBaseline = 'alphabetic';
-    ctx.font = `700 11px ${FUENTE}`;
-    ctx.fillStyle = GRIS_TXT;
-    ctx.fillText('MONTO SOLICITADO', cx, y);
-    y += 27;
-    ctx.font = `800 33px ${FUENTE}`;
-    ctx.fillStyle = TEXTO;
-    ctx.fillText(formatoNumero(monto), cx, y);
-
-    y += 14;
-    return y; // punto donde debe empezar el contenido siguiente dentro del marco
-  }
-
-  // Toma un canvas ya dibujado y lo devuelve con esquinas muy redondeadas (estilo iOS)
-  // y con un pequeño margen blanco en los 4 lados para que no se vea recortado
-  async function finalizarCaptura(dibujar, altoContenido, anchoContenido){
-    if(document.fonts && document.fonts.ready){
-      try{ await document.fonts.ready; }catch(e){ /* seguimos con la fuente disponible */ }
-    }
-
-    const W = anchoContenido || 480;
-    const MARGEN = 10;   // espacio pequeño en los 4 lados
-    const RADIO = 28;    // redondeo generoso estilo iOS
-    const escala = 3;    // buena calidad / alta resolución
-
-    const anchoTotal = W + MARGEN * 2;
-    const altoTotal = altoContenido + MARGEN * 2;
-
-    const base = document.createElement('canvas');
-    base.width = Math.round(anchoTotal * escala);
-    base.height = Math.round(altoTotal * escala);
-    const ctxBase = base.getContext('2d');
-    ctxBase.scale(escala, escala);
-    ctxBase.fillStyle = '#ffffff';
-    ctxBase.fillRect(0, 0, anchoTotal, altoTotal);
-    ctxBase.translate(MARGEN, MARGEN);
-    dibujar(ctxBase, W);
-
-    const final = document.createElement('canvas');
-    final.width = base.width;
-    final.height = base.height;
-    const ctxFinal = final.getContext('2d');
-    dibujarRectRedondeado(ctxFinal, 0, 0, final.width, final.height, RADIO * escala);
-    ctxFinal.clip();
-    ctxFinal.drawImage(base, 0, 0);
-
-    const blob = await new Promise(resolve => final.toBlob(resolve, 'image/png'));
-    if(!blob || blob.size === 0){
-      throw new Error('La captura quedó vacía');
-    }
-    return blob;
-  }
-
-  async function generarCapturaCuotas(){
-    const monto = parseMonto(montoInput.value);
-    const frecuencia = freqSelect.value;
-    const seleccionada = parseInt(cuotasSelect.value, 10);
-    const PAD = 26;
-    const rowH = 48;
-    const headerH = 40;
-    const altoTabla = headerH + seleccionada * rowH;
-    const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
-    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
-
-    return finalizarCaptura((ctx, W) => {
-      const VERDE = '#008F53';
-      const VERDE_OSC = '#05713F';
-      const FILA_ALT = '#EAF2FA';
-      const FUENTE = 'Arial, Helvetica, sans-serif';
-      const tableW = W - PAD * 2;
-
-      let y = dibujarLogo(ctx, W, PAD, 'SIMULACIÓN DE CUOTAS');
-      const frameY = y;
-
-      ctx.save();
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.clip();
-
-      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
-
-      ctx.fillStyle = VERDE_OSC;
-      ctx.fillRect(PAD, yy, tableW, headerH);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `800 13px ${FUENTE}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('DETALLE DE CUOTAS', PAD + tableW / 2, yy + headerH / 2);
-
-      // Columnas bien separadas: número a la izquierda, etiqueta al centro-izquierda,
-      // valor a la derecha, con números y valores en fuente más grande
-      const numX = PAD + 22;
-      const labelX = PAD + 62;
-      const valX = PAD + tableW - 22;
-
-      for(let fila = 1; fila <= seleccionada; fila++){
-        const filaY = yy + headerH + (fila - 1) * rowH;
-        const centerY = filaY + rowH / 2;
-        ctx.fillStyle = fila % 2 === 1 ? '#ffffff' : FILA_ALT;
-        ctx.fillRect(PAD, filaY, tableW, rowH);
-
-        const valor = calcularCuota(monto, fila, frecuencia);
-        const etiqueta = fila === 1 ? 'Cuota de' : 'Cuotas de';
-        const numTxt = String(fila);
-        const valTxt = '$' + formatoNumero(valor);
-
-        ctx.textBaseline = 'middle';
-
-        ctx.textAlign = 'left';
-        ctx.font = `800 20px ${FUENTE}`;
-        ctx.fillStyle = VERDE;
-        ctx.fillText(numTxt, numX, centerY);
-
-        ctx.font = `500 15px ${FUENTE}`;
-        ctx.fillStyle = '#444444';
-        ctx.fillText(etiqueta, labelX, centerY);
-
-        ctx.textAlign = 'right';
-        ctx.font = `800 20px ${FUENTE}`;
-        ctx.fillStyle = VERDE;
-        ctx.fillText(valTxt, valX, centerY);
-      }
-      ctx.restore();
-
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = VERDE_OSC;
-      ctx.stroke();
-
-      const yFooter = frameY + alturaMarco + 12;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `500 10px ${FUENTE}`;
-      ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
-    }, altoContenido);
-  }
-
-  async function generarCapturaFechas(){
-    const monto = parseMonto(montoInput.value);
-    const frecuencia = freqSelect.value;
-    const seleccionada = parseInt(cuotasSelect.value, 10);
-    const PAD = 26;
-    const rowH = 40;
-    const headerH = 40;
-    const altoTabla = headerH + seleccionada * rowH;
-    const alturaMarco = ALTURA_BANDA_MONTO + altoTabla;
-    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
-
-    return finalizarCaptura((ctx, W) => {
-      const AZUL = '#002D62';
-      const FILA_ALT = '#EAF2FA';
-      const TEXTO = '#1B1B1B';
-      const FUENTE = 'Arial, Helvetica, sans-serif';
-      const tableW = W - PAD * 2;
-
-      let y = dibujarLogo(ctx, W, PAD, 'FECHAS DE PAGO');
-      const frameY = y;
-
-      ctx.save();
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.clip();
-
-      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
-
-      ctx.fillStyle = AZUL;
-      ctx.fillRect(PAD, yy, tableW, headerH);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `800 13px ${FUENTE}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('N° CUOTA', PAD + tableW * (1 / 6), yy + headerH / 2);
-      ctx.fillText('VALOR CUOTA', PAD + tableW * (3 / 6), yy + headerH / 2);
-      ctx.fillText('FECHA DE PAGO', PAD + tableW * (5 / 6), yy + headerH / 2);
-
-      const valorCuotaFinal = calcularCuota(monto, seleccionada, frecuencia);
-      const intervalo = INTERVALO_DIAS[frecuencia];
-      let fechaCursor = new Date(fechaInicio.getTime());
-
-      for(let i = 1; i <= seleccionada; i++){
-        fechaCursor = new Date(fechaCursor.getTime() + intervalo * 24 * 60 * 60 * 1000);
-        const filaY = yy + headerH + (i - 1) * rowH;
-        ctx.fillStyle = i % 2 === 1 ? '#ffffff' : FILA_ALT;
-        ctx.fillRect(PAD, filaY, tableW, rowH);
-
-        ctx.textAlign = 'center';
-        ctx.font = `600 13px ${FUENTE}`;
-        ctx.fillStyle = TEXTO;
-        ctx.fillText(String(i), PAD + tableW * (1 / 6), filaY + rowH / 2);
-
-        ctx.font = `800 13px ${FUENTE}`;
-        ctx.fillStyle = AZUL;
-        ctx.fillText('$' + formatoNumero(valorCuotaFinal), PAD + tableW * (3 / 6), filaY + rowH / 2);
-
-        ctx.font = `500 12px ${FUENTE}`;
-        ctx.fillStyle = '#333333';
-        ctx.fillText(formatearFecha(fechaCursor), PAD + tableW * (5 / 6), filaY + rowH / 2);
-      }
-      ctx.restore();
-
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.strokeStyle = AZUL;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      const yFooter = frameY + alturaMarco + 12;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `500 10px ${FUENTE}`;
-      ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
-    }, altoContenido);
-  }
-
-  async function generarCapturaResumen(){
-    const PAD = 22;
-    const filaAltura = 42;
-    const gap = 6;
-    const filas = 6;
-    const headerResumen = 36;
-    const gapHeaderLista = 10;
-    const altoGrid = filas * filaAltura + (filas - 1) * gap;
-    const alturaMarco = ALTURA_BANDA_MONTO + headerResumen + gapHeaderLista + altoGrid;
-    const altoContenido = PAD + 37 + alturaMarco + 12 + 10 + 10;
-    const anchoResumen = 360;
-
-    return finalizarCaptura((ctx, W) => {
-      const AZUL = '#002D62';
-      const GRIS_TXT = '#6B7280';
-      const TEXTO = '#1B1B1B';
-      const FILA_ALT = '#EAF2FA';
-      const FUENTE = 'Arial, Helvetica, sans-serif';
-      const monto = parseMonto(montoInput.value);
-      const frecuencia = freqSelect.value;
-      const seleccionada = parseInt(cuotasSelect.value, 10);
-      const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
-      const total = valorCuota * seleccionada;
-      const intereses = total - monto;
-      const tableW = W - PAD * 2;
-
-      let y = dibujarLogo(ctx, W, PAD, 'RESUMEN DEL CRÉDITO');
-      const frameY = y;
-
-      ctx.save();
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.clip();
-
-      let yy = dibujarBandaYMonto(ctx, W, PAD, frameY);
-
-      ctx.fillStyle = AZUL;
-      ctx.fillRect(PAD, yy, tableW, headerResumen);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `800 12px ${FUENTE}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('RESUMEN DEL CRÉDITO', PAD + tableW / 2, yy + headerResumen / 2);
-      yy += headerResumen + gapHeaderLista;
-
-      const items = [
-        ['💰', 'Monto', '$' + formatoNumero(monto)],
-        ['🔁', 'Modalidad', freqSelect.options[freqSelect.selectedIndex].text],
-        ['📆', 'N° cuotas', String(seleccionada)],
-        ['💵', 'Valor cuota', '$' + formatoNumero(valorCuota)],
-        ['📊', 'Total a pagar', '$' + formatoNumero(total)],
-        ['📈', 'Intereses', '$' + formatoNumero(intereses)]
-      ];
-
-      const anchoFila = tableW;
-
-      items.forEach(([icono, label, valor], idx) => {
-        const filaY = yy + idx * (filaAltura + gap);
-
-        dibujarRectRedondeado(ctx, PAD, filaY, anchoFila, filaAltura, 10);
-        ctx.fillStyle = FILA_ALT;
-        ctx.fill();
-
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.font = '17px Arial, sans-serif';
-        ctx.fillStyle = '#000000';
-        ctx.fillText(icono, PAD + 13, filaY + filaAltura / 2);
-
-        ctx.font = `700 9px ${FUENTE}`;
-        ctx.fillStyle = GRIS_TXT;
-        ctx.fillText(label.toUpperCase(), PAD + 44, filaY + filaAltura / 2 - 8);
-
-        ctx.font = `800 13px ${FUENTE}`;
-        ctx.fillStyle = TEXTO;
-        ctx.fillText(valor, PAD + 44, filaY + filaAltura / 2 + 8);
-      });
-
-      ctx.restore();
-
-      dibujarRectRedondeado(ctx, PAD, frameY, tableW, alturaMarco, 14);
-      ctx.strokeStyle = AZUL;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      const yFooter = frameY + alturaMarco + 12;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `500 10px ${FUENTE}`;
-      ctx.fillStyle = '#9AA0A6';
-      ctx.fillText('PrestaYa · Los valores son referenciales y pueden variar', W / 2, yFooter);
-    }, altoContenido, anchoResumen);
-  }
-
-  async function ejecutarCaptura(tipo, btn, textoEl){
-    tasaPanel.classList.remove('open');
-    tasaBtn.setAttribute('aria-expanded', 'false');
-    cuotasMenu.classList.remove('open');
-    cuotasBtn.setAttribute('aria-expanded', 'false');
-
-    const original = textoEl.textContent;
-    btn.disabled = true;
-    textoEl.textContent = 'Generando…';
-
+  async function compartirCanvas(canvasBase, filenameBase, btn){
+    iniciarEstadoGenerando(btn);
     try{
-      let blob, prefijo;
-      if(tipo === 'cuotas'){
-        blob = await generarCapturaCuotas();
-        prefijo = 'cuotas';
-      } else if(tipo === 'fechas'){
-        blob = await generarCapturaFechas();
-        prefijo = 'fechas-pago';
-      } else {
-        blob = await generarCapturaResumen();
-        prefijo = 'resumen';
-      }
+      const canvasFinal = empaquetarCaptura(canvasBase);
+      const blob = await new Promise(resolve => canvasFinal.toBlob(resolve, 'image/png'));
+      if(!blob || blob.size === 0) throw new Error('La captura quedó vacía');
 
-      const monto = parseMonto(montoInput.value);
-      const frecuencia = freqSelect.value;
-      const seleccionada = parseInt(cuotasSelect.value, 10);
-      const valorCuota = calcularCuota(monto, seleccionada, frecuencia);
-      const diferenciador = numeroAleatorio1a100();
-      const nombre = `prestaya-${prefijo}-${valorCuota}-${timestampArchivo()}-${diferenciador}.png`;
-      const archivo = new File([blob], nombre, { type: 'image/png' });
+      const rand = Math.floor(Math.random() * 100) + 1;
+      const filename = `${filenameBase}-${timestampParts()}-${rand}.png`;
+      const file = new File([blob], filename, { type: 'image/png' });
 
-      if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
         try{
-          await navigator.share({ files: [archivo], title: 'PrestaYa' });
+          await navigator.share({ files: [file], title: 'PrestaYa', text: 'Simulador de cuotas PrestaYa' });
         }catch(err){
           if(err && err.name !== 'AbortError'){
             mostrarVistaPrevia(blob);
@@ -1381,22 +987,81 @@
     }catch(err){
       alert('No se pudo generar la captura. Intenta de nuevo.');
     }finally{
-      btn.disabled = false;
-      textoEl.textContent = original;
+      finalizarEstadoGenerando(btn);
     }
   }
 
-  capturarCuotasBtn.addEventListener('click', () => ejecutarCaptura('cuotas', capturarCuotasBtn, capturarCuotasTexto));
-  capturarFechasBtn.addEventListener('click', () => ejecutarCaptura('fechas', capturarFechasBtn, capturarFechasTexto));
-  capturarResumenBtn.addEventListener('click', () => ejecutarCaptura('resumen', capturarResumenBtn, capturarResumenTexto));
+  const shareCuotasBtn = document.getElementById('shareCuotasBtn');
+  const shareResumenBtn = document.getElementById('shareResumenBtn');
+  const shareFechasBtn = document.getElementById('shareFechasBtn');
 
-  /* =================== fin captura de pantalla por tarjeta =================== */
+  shareCuotasBtn.addEventListener('click', () => {
+    const cuotas = calcCuotas(state.monto, state.freq, state.numCuotas, state.baseRatePct);
+    const rows = cuotas.map((val, idx) => ({ num: idx + 1, value: `$${formatMoney(val)}`, isStamp: false }));
+    const canvasBase = buildTableCaptureCanvas({ headerColor: '#008F53', colHeaders: ['N° Cuota', 'Valor cuota'], rows });
+    compartirCanvas(canvasBase, `cuotas-${state.freq.toLowerCase()}`, shareCuotasBtn);
+  });
 
-  fechaInicioInput.value = formatoISO(fechaInicio);
-  actualizarFechaBtnLabel();
-  llenarCuotasSelect();
-  renderTodo();
+  shareResumenBtn.addEventListener('click', () => {
+    const cuotas = calcCuotas(state.monto, state.freq, state.numCuotas, state.baseRatePct);
+    const fechas = calcPaymentDates(state.disbursementDate, state.freq, state.numCuotas);
+    const totalPagar = cuotas.reduce((acc, val) => acc + val, 0);
+    const rows = [
+      ['Monto', `$${formatMoney(state.monto)}`],
+      ['Modalidad', state.freq],
+      ['Tasa aplicada', `${state.baseRatePct}%`],
+      ['N° cuotas', `${state.numCuotas}`],
+      ['Desembolso', formatDateLabel(state.disbursementDate)],
+      ['Última cuota', formatDateLabel(fechas[fechas.length - 1])],
+      ['Total a pagar', `$${formatMoney(totalPagar)}`]
+    ];
+    const canvasBase = buildSummaryCaptureCanvas({ title: 'Resumen del crédito', rows, totalIndex: rows.length - 1 });
+    compartirCanvas(canvasBase, 'resumen-credito', shareResumenBtn);
+  });
+
+  // --- Fechas de pago: gesto de 3 toques para revelar "Pagado" en la captura ---
+  // 1 toque (o 2)  -> la captura siempre muestra las fechas, nunca revela cuotas marcadas como pagadas
+  // 3 toques o más -> la captura respeta el estado real y muestra el sello "Pagado" en las cuotas marcadas
+  let fechasTapCount = 0;
+  let fechasTapTimer = null;
+  const FECHAS_TAP_WINDOW = 550;
+
+  function generarYCompartirFechas(revelarPagado){
+    const fechas = calcPaymentDates(state.disbursementDate, state.freq, state.numCuotas);
+    const rows = fechas.map((d, idx) => {
+      const n = idx + 1;
+      const marcadaPagada = state.paidRows.has(n);
+      return { num: n, value: formatDateLabel(d), isStamp: revelarPagado && marcadaPagada };
+    });
+    const canvasBase = buildTableCaptureCanvas({ headerColor: '#002D62', colHeaders: ['N° Cuota', 'Fecha de pago'], rows });
+    compartirCanvas(canvasBase, `fechas-pago-${state.freq.toLowerCase()}`, shareFechasBtn);
+  }
+
+  shareFechasBtn.addEventListener('click', () => {
+    fechasTapCount++;
+    if(fechasTapTimer) clearTimeout(fechasTapTimer);
+    fechasTapTimer = setTimeout(() => {
+      const revelarPagado = fechasTapCount >= 3;
+      fechasTapCount = 0;
+      generarYCompartirFechas(revelarPagado);
+    }, FECHAS_TAP_WINDOW);
+  });
+  // --- fin compartir captura ---
+
+  // --- Cerrar desplegables al tocar fuera ---
+  document.addEventListener('click', (e) => {
+    if(!pctPill.contains(e.target) && !pctDropdown.contains(e.target)){
+      pctPill.classList.remove('open');
+      pctDropdown.classList.remove('open');
+    }
+    if(!cuotasPart.contains(e.target) && !cuotasDropdown.contains(e.target)){
+      cuotasPart.classList.remove('open');
+      cuotasDropdown.classList.remove('open');
+    }
+    if(!freqSelect.contains(e.target)) freqSelect.classList.remove('open');
+  });
+
+  render();
 </script>
-
 </body>
 </html>
